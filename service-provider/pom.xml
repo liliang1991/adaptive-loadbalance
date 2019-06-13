@@ -16,6 +16,7 @@
         <dependency>
             <groupId>com.aliware.tianchi</groupId>
             <artifactId>service-api</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.dubbo</groupId>
