@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -19,20 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CallbackServiceImpl implements CallbackService {
 
     public CallbackServiceImpl() {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (!listeners.isEmpty()) {
-                    for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
-                        try {
-                            entry.getValue().receiveServerMsg(System.getProperty("quota") + " " + new Date().toString());
-                        } catch (Throwable t1) {
-                            listeners.remove(entry.getKey());
-                        }
-                    }
-                }
-            }
-        }, 0, 1000);
+        try {
+            listeners.take().receiveServerMsg(System.getProperty("quota") + " " + new Date().toString());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private Timer timer = new Timer();
@@ -41,11 +34,16 @@ public class CallbackServiceImpl implements CallbackService {
      * key: listener type
      * value: callback listener
      */
-    private final Map<String, CallbackListener> listeners = new ConcurrentHashMap<>();
+    ArrayBlockingQueue<CallbackListener> listeners = new ArrayBlockingQueue<CallbackListener>(10000);
 
     @Override
     public void addListener(String key, CallbackListener listener) {
-        listeners.put(key, listener);
+        try {
+            listeners.put(listener);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         listener.receiveServerMsg(new Date().toString()); // send notification for change
     }
 }
