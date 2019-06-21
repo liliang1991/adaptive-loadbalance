@@ -42,7 +42,7 @@ public class UserLoadBalance implements LoadBalance {
     }
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException {
-        System.out.println(getServer(6));
+        //System.out.println(getServer(6));
      /*   System.out.println(getServer(weightCount));
 
         System.out.println(invokers.get(0).getUrl().getHost());*/
