@@ -21,11 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CallbackServiceImpl implements CallbackService {
 
     public CallbackServiceImpl() {
-   /*     try {
+        try {
             listeners.take().receiveServerMsg(System.getProperty("quota") + " " + new Date().toString());
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     private Timer timer = new Timer();
