@@ -1,12 +1,11 @@
 package com.aliware.tianchi;
 
 import org.apache.dubbo.common.Constants;
+import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
-import org.apache.dubbo.rpc.Filter;
-import org.apache.dubbo.rpc.Invocation;
-import org.apache.dubbo.rpc.Invoker;
-import org.apache.dubbo.rpc.Result;
-import org.apache.dubbo.rpc.RpcException;
+import org.apache.dubbo.rpc.*;
+import org.apache.dubbo.rpc.protocol.dubbo.DecodeableRpcResult;
+import org.springframework.remoting.support.UrlBasedRemoteAccessor;
 
 /**
  * @author daofeng.xjf
@@ -22,10 +21,14 @@ public class TestClientFilter implements Filter {
         try{
 
             Result result = invoker.invoke(invocation);
+/*            URL url=invocation.getInvoker().getUrl();
+            RpcStatus status= RpcStatus.getStatus(url);
+            System.out.println(status.getActive());*/
+
             return result;
-        }catch (Exception e){
-            throw e;
+        }catch (RpcException e){
         }
+        return null;
 
     }
 
