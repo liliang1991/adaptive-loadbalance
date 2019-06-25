@@ -65,3 +65,4 @@ Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
             TestServerFilter.setPoolSize(map.values().iterator().next().getThreads());
             System.out.println(map.values().iterator().next().getThreads());
       }
+  RoundRobinLoadBalance
