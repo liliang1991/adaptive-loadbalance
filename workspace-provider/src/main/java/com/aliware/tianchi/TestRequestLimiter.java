@@ -25,12 +25,7 @@ public class TestRequestLimiter implements RequestLimiter {
      */
     @Override
     public boolean tryAcquire(Request request, int activeTaskCount) {
-        int threads = map.get("dubbo").getThreads();
-        if (activeTaskCount < threads) {
             return true;
-        } else {
-            return false;
-        }
     }
 
 }
