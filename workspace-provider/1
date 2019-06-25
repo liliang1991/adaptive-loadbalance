@@ -60,3 +60,8 @@ public class CallbackServiceImpl implements CallbackService {
 
     }
 }
+Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+      if(null!=map && map.size()>0){
+            TestServerFilter.setPoolSize(map.values().iterator().next().getThreads());
+            System.out.println(map.values().iterator().next().getThreads());
+      }
