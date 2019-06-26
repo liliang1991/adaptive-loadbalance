@@ -25,6 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class UserLoadBalance implements LoadBalance {
 
+    boolean ispass=false;
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException {
      /*   RpcStatus status= RpcStatus.getStatus(url);
@@ -45,8 +46,34 @@ public class UserLoadBalance implements LoadBalance {
         }
         return null;*/
          return  invokers.get(SmoothWeight.getServer(6));
-    }
 
+    }
+    public  void sleeps(int timeout,List<Invoker> invokers, Invocation invocation) throws RpcException {
+     /*   RpcStatus status= RpcStatus.getStatus(url);
+        System.out.println(status.getAverageTps());*/
+       /*  Map<String,String> map=invocation.getAttachments();
+        try {
+            Cf.completableFuture = CompletableFuture.supplyAsync(() -> {
+                Invoker invoker=invokers.get(SmoothWeight.getServer(6));
+                return invoker;
+
+            });
+            map.put("com",Cf.completableFuture.toString());
+
+            System.out.println("========"+Cf.completableFuture);
+            return  Cf.completableFuture.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;*/
+       try {
+           wait(timeout);
+
+       }catch (Exception e){
+
+       }
+
+    }
     public static void main(String[] args) {
 
     }

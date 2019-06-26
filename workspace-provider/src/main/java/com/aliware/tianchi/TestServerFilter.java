@@ -2,6 +2,8 @@ package com.aliware.tianchi;
 
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.extension.Activate;
+import org.apache.dubbo.config.ProtocolConfig;
+import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.Filter;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
@@ -24,6 +26,7 @@ public class TestServerFilter implements Filter {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
         try {
+
             /*Map<String,String> map=invocation.getAttachments();
             System.out.println("aaaaaaaaaa"+map.get("aa"));
 
@@ -39,6 +42,12 @@ public class TestServerFilter implements Filter {
             });
 
             invoker = completableFuture.get();*/
+
+      /*      Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+            System.out.println("最大可接受连接数======"+map.get("dubbo").getAccepts());
+            System.out.println("最大线程数======"+map.get("dubbo").getThreads());
+            System.out.println("线程池类型为======"+map.get("dubbo").getThreadpool());
+            System.out.println("核心线程池为======"+map.get("dubbo").getCorethreads());*/
             Result result = invoker.invoke(invocation);
   /*          if(result.getException()!=null)
             System.out.println(result.getException().getMessage());*/
@@ -49,9 +58,12 @@ public class TestServerFilter implements Filter {
         }
         return null;
     }
-
+    public static final  String key="PROVIDER_POOL_SIZE_ACTIVE";
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
+/*        System.out.println("quota======"+System.getProperty("quota"));
+        result.setAttachment("quota",System.getProperty("quota"));*/
+        Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
         return result;
     }
 

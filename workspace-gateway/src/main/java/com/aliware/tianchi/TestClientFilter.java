@@ -5,7 +5,8 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.protocol.dubbo.DecodeableRpcResult;
-import org.springframework.remoting.support.UrlBasedRemoteAccessor;
+
+import java.util.Map;
 
 /**
  * @author daofeng.xjf
@@ -16,6 +17,7 @@ import org.springframework.remoting.support.UrlBasedRemoteAccessor;
  */
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
+
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try{
@@ -31,9 +33,33 @@ public class TestClientFilter implements Filter {
         return null;
 
     }
+    private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
 
+    public static final  String key="PROVIDER_POOL_SIZE_ACTIVE";
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        return result;
+
+       // System.out.println(result.getAttachment("quota"));
+        if(result.hasException()){
+          //  System.out.println("exception====="+result.getAttachment("quota")+result.getException());
+            try {
+                UserLoadBalance userLoadBalance=new UserLoadBalance();
+                userLoadBalance.wait(3000);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }else {
+            return result;
+        }
+        //System.out.println("key-------"+result.getAttachment(key));
+     /*   Map<String, String> map = result.getAttachments();
+        System.out.println("mapsize========" + map.size());
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+
+            System.out.println("key=======" + entry.getKey() + "====value======" + entry.getValue());
+
+
+        }*/
     }
 }
