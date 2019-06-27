@@ -58,12 +58,22 @@ public class TestServerFilter implements Filter {
         }
         return null;
     }
-    public static final  String key="PROVIDER_POOL_SIZE_ACTIVE";
+
+    public static final String POOL_CORE_COUNT = "active_thread";
+      Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
+       // result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT));
+        int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
+        int threadcount=map.get("dubbo").getThreads();
+        if(result.hasException()){
+            System.out.println(">>>>>>>");
+        }
+        // System.out.println( "corecount======"+invocation.getAttachment(POOL_CORE_COUNT));
 /*        System.out.println("quota======"+System.getProperty("quota"));
         result.setAttachment("quota",System.getProperty("quota"));*/
-        Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+        //   Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
         return result;
     }
 

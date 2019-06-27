@@ -4,7 +4,6 @@ import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.*;
-import org.apache.dubbo.rpc.protocol.dubbo.DecodeableRpcResult;
 
 import java.util.Map;
 
@@ -35,19 +34,16 @@ public class TestClientFilter implements Filter {
     }
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
 
-    public static final  String key="PROVIDER_POOL_SIZE_ACTIVE";
+    public static final String POOL_CORE_COUNT = "active_thread";
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
 
        // System.out.println(result.getAttachment("quota"));
+        invoker.getUrl().getHost();
+        System.out.println(result.getAttachment(POOL_CORE_COUNT)+"poolcount========");
         if(result.hasException()){
           //  System.out.println("exception====="+result.getAttachment("quota")+result.getException());
-            try {
-                UserLoadBalance userLoadBalance=new UserLoadBalance();
-                userLoadBalance.wait(3000);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            System.out.println("exception=========");
             return null;
         }else {
             return result;
