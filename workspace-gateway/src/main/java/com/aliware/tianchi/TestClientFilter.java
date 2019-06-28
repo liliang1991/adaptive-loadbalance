@@ -37,15 +37,15 @@ public class TestClientFilter implements Filter {
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
 
     public static final String POOL_CORE_COUNT = "active_thread";
-    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
 
        // System.out.println(result.getAttachment("quota"));
-        System.out.println("host======"+invoker.getUrl().getHost());
-        System.out.println("thereads======="+result.getAttachment(invoker.getUrl().getHost()));
-
-        System.out.println(result.getAttachment(POOL_CORE_COUNT)+"poolcount========");
+        String params=result.getAttachment(POOL_CORE_COUNT);
+        int activeThread=Integer.parseInt(params.split("\t")[0]);
+        int thread=Integer.parseInt(params.split("\t")[1]);
+        System.out.println("activethread====="+activeThread);
+        System.out.println("thereads======="+thread);
         if(result.hasException()){
           //  System.out.println("exception====="+result.getAttachment("quota")+result.getException());
             System.out.println("exception=========");
