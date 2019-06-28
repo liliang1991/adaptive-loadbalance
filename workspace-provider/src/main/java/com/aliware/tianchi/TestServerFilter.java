@@ -64,12 +64,13 @@ public class TestServerFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-       // result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT));
-        int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
+        result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT));
+        result.setAttachment(invoker.getUrl().getHost(),String.valueOf(map.get("dubbo").getThreads()));
+    /*    int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
         int threadcount=map.get("dubbo").getThreads();
         if(result.hasException()){
             System.out.println(">>>>>>>");
-        }
+        }*/
         // System.out.println( "corecount======"+invocation.getAttachment(POOL_CORE_COUNT));
 /*        System.out.println("quota======"+System.getProperty("quota"));
         result.setAttachment("quota",System.getProperty("quota"));*/
