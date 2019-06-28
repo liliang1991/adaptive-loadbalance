@@ -67,3 +67,4 @@ Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
       }
   RoundRobinLoadBalance
   https://www.docin.com/p-714955432.html?docfrom=rrela
+  https://blog.csdn.net/u014106644/article/details/84247561
