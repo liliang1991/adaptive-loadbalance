@@ -61,7 +61,7 @@ public class TestClientFilter implements Filter {
             if (result.hasException()) {
                 synchronized(invoker) {
                //     System.out.println(result.getException());
-                    invoker.wait(3000);
+                    invoker.wait(1000);
                 }
                 //  System.out.println("exception====="+result.getAttachment("quota")+result.getException());
                 return result;
