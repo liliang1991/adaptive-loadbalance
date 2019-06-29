@@ -24,10 +24,28 @@ import java.util.concurrent.ThreadLocalRandom;
  * 选手需要基于此类实现自己的负载均衡算法
  */
 public class UserLoadBalance implements LoadBalance {
+    public static final String WEIGHT="weight";
 
     boolean ispass=false;
     @Override
-    public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException {
+    public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation)  {
+
+        Invoker invoker=null;
+        try {
+     /*     Map<String,String> map= url.getParameters();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+
+                System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+
+            }*/
+            //System.out.println("url===="+ url.getParameters().get(WEIGHT));
+        //    System.out.println("url===="+invoker.getUrl().getHost());
+            invoker=invokers.get(SmoothWeight.getServer(6));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
      /*   RpcStatus status= RpcStatus.getStatus(url);
         System.out.println(status.getAverageTps());*/
        /*  Map<String,String> map=invocation.getAttachments();
@@ -45,7 +63,8 @@ public class UserLoadBalance implements LoadBalance {
             e.printStackTrace();
         }
         return null;*/
-         return  invokers.get(SmoothWeight.getServer(6));
+
+         return  invoker;
 
     }
     public  void sleeps(int timeout,List<Invoker> invokers, Invocation invocation) throws RpcException {

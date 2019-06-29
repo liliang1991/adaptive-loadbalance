@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 用户可以基于此服务，实现服务端向客户端动态推送的功能
  */
 public class CallbackServiceImpl implements CallbackService {
-    static final Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
 
     public CallbackServiceImpl() {
 
