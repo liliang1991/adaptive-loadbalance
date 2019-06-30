@@ -60,18 +60,22 @@ public class TestServerFilter implements Filter {
     }
 
     public static final String POOL_CORE_COUNT = "active_thread";
-      Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+    public static final String START_TIME = "start_time";
+    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT)+"\t"+map.get("dubbo").getThreads());
+        long startTime = System.currentTimeMillis();
+        result.setAttachment(START_TIME, String.valueOf(startTime));
+
+        result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
     /*    int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
         int threadcount=map.get("dubbo").getThreads();
 
      */
-        if(result.hasException()){
+     /*   if (result.hasException()) {
             System.out.println(">>>>>>>");
-        }
+        }*/
         // System.out.println( "corecount======"+invocation.getAttachment(POOL_CORE_COUNT));
 /*        System.out.println("quota======"+System.getProperty("quota"));
         result.setAttachment("quota",System.getProperty("quota"));*/
