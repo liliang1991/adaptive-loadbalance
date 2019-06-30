@@ -56,34 +56,22 @@ public class TestClientFilter implements Filter {
             // System.out.println(result.getAttachment("quota"));
 /*
             System.out.println("Available======="+invoker.isAvailable());*/
-            System.out.println("result===="+result.getValue());
-            System.out.println("tres==="+new Date().getTime());
-            if(result.getAttachment(START_TIME)!=null) {
-                long startTime = Long.parseLong(result.getAttachment(START_TIME));
-                long stopTime = System.currentTimeMillis();
-                ;
-                System.out.println("time=======" + (stopTime - startTime));
-            }
-            if (result.getAttachment(POOL_CORE_COUNT) != null) {
-                String params = result.getAttachment(POOL_CORE_COUNT);
-                int activeThread = Integer.parseInt(params.split("\t")[0]);
-                int thread = Integer.parseInt(params.split("\t")[1]);
-                System.out.println("activethread=====" + activeThread);
-                System.out.println("thereads=======" + thread);
-            }
-
+            UserLoadBalance.add(result,invoker,invocation);
+/*
             if (result.hasException()) {
-                UserLoadBalance.add(result,invoker,invocation);
                 System.out.println("exception===="+result.getException());
-               /* synchronized (invoker) {
+               *//* synchronized (invoker) {
                     //     System.out.println(result.getException());
                     invoker.wait(1000);
-                }*/
+                }*//*
                 //  System.out.println("exception====="+result.getAttachment("quota")+result.getException());
                 return result;
             } else {
-                return result;
-            }
+                            return result;
+
+            }*/
+            return result;
+
         } catch (Exception e) {
             e.printStackTrace();
         }

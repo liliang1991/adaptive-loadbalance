@@ -1,17 +1,12 @@
 package com.aliware.tianchi;
 
 import com.aliware.tianchi.smooth.SmoothServer;
+import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.rpc.Invocation;
-import org.apache.dubbo.rpc.Invoker;
-import org.apache.dubbo.rpc.RpcException;
-import org.apache.dubbo.rpc.RpcStatus;
+import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -24,13 +19,24 @@ import java.util.concurrent.ThreadLocalRandom;
  * 选手需要基于此类实现自己的负载均衡算法
  */
 public class UserLoadBalance implements LoadBalance {
-    public static final String WEIGHT="weight";
+    public static final String WEIGHT = "weight";
+    // static CompletableFuture<Result> completableFuture=new CompletableFuture<>();
 
-    boolean ispass=false;
+    static CompletableFuture<Result> completableFuture = null;
+    boolean ispass = false;
+  static   Map map=SmoothWeight.servers;
+
     @Override
-    public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation)  {
+    public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
+    /*    completableFuture.supplyAsync( Result res,Executor executor) {
+            return asyncSupplyStage(screenExecutor(executor), supplier);
+        }*/
 
-        Invoker invoker=null;
+   /*     completableFuture.whenComplete((res, e) ->
+        {
+            System.out.println("结果：" + res);
+        });*/
+        Invoker invoker = null;
         try {
      /*     Map<String,String> map= url.getParameters();
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -39,10 +45,10 @@ public class UserLoadBalance implements LoadBalance {
 
             }*/
             //System.out.println("url===="+ url.getParameters().get(WEIGHT));
-        //    System.out.println("url===="+invoker.getUrl().getHost());
-            invoker=invokers.get(SmoothWeight.getServer(6));
+            //    System.out.println("url===="+invoker.getUrl().getHost());
+            invoker = invokers.get(SmoothWeight.getServer(SmoothWeight.sumWeight()));
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -64,36 +70,84 @@ public class UserLoadBalance implements LoadBalance {
         }
         return null;*/
 
-         return  invoker;
+        return invoker;
 
     }
-    public  void sleeps(int timeout,List<Invoker> invokers, Invocation invocation) throws RpcException {
-     /*   RpcStatus status= RpcStatus.getStatus(url);
-        System.out.println(status.getAverageTps());*/
-       /*  Map<String,String> map=invocation.getAttachments();
-        try {
-            Cf.completableFuture = CompletableFuture.supplyAsync(() -> {
-                Invoker invoker=invokers.get(SmoothWeight.getServer(6));
-                return invoker;
 
-            });
-            map.put("com",Cf.completableFuture.toString());
+    public static void add(Result result, Invoker<?> invoker, Invocation invocation) {
+        completableFuture = CompletableFuture.supplyAsync(() ->
+        {
+            getResult(result, invoker, invocation);
+            return result;
+        });
+        completableFuture.whenComplete((res, e) ->
+        {
+        });
 
-            System.out.println("========"+Cf.completableFuture);
-            return  Cf.completableFuture.get();
-        } catch (Exception e) {
-            e.printStackTrace();
+    }
+
+    private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
+
+    public static final String POOL_CORE_COUNT = "active_thread";
+    public static final String START_TIME = "start_time";
+
+    public static void getResult(Result result, Invoker<?> invoker, Invocation invocation) {
+        int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+        if (result.getAttachment(START_TIME) != null) {
+            long startTime = Long.parseLong(result.getAttachment(START_TIME));
+            long stopTime = System.currentTimeMillis();
+
+            long time = stopTime - startTime;
+             updateWeight(map,invoker.getUrl().getHost(),time,timeout);
         }
-        return null;*/
-       try {
-           wait(timeout);
+    /*    if (result.getAttachment(POOL_CORE_COUNT) != null) {
+            String params = result.getAttachment(POOL_CORE_COUNT);
+            int activeThread = Integer.parseInt(params.split("\t")[0]);
+            int thread = Integer.parseInt(params.split("\t")[1]);
+            System.out.println("activethread=====" + activeThread);
+            System.out.println("thereads=======" + thread);
+        }*/
 
-       }catch (Exception e){
+        if (result.hasException()) {
+            System.out.println("exception====" + result.getException());
 
-       }
+        }
+    }
+
+    public static void updateWeight(Map<String, SmoothServer> map,String host,long time,long timeout){
+        if(time<timeout){
+           if(time<400){
+               SmoothServer  smoothServer=new SmoothServer(host, 3, 0);
+               map.put(host,smoothServer);
+
+
+
+           }else if(time<700&&time>=400){
+               SmoothServer  smoothServer=new SmoothServer(host, 2, 0);
+               map.put(host,smoothServer);
+
+           }else{
+               SmoothServer  smoothServer=new SmoothServer(host, 1, 0);
+               map.put(host,smoothServer);
+
+           }
+        }
 
     }
+
     public static void main(String[] args) {
+
+
+     /*   for(SmoothServer smoothServer:list){
+            System.out.println(smoothServer.getIp());
+            System.out.println(smoothServer.getWeight());
+
+        }*/
+        for(int i=0;i<10;i++){
+            System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
+        }
+
+
 
     }
 

@@ -36,4 +36,9 @@ public class SmoothServer {
     public void setCurWeight(int curWeight) {
         this.curWeight = curWeight;
     }
+
+    public SmoothServer(int weight, int curWeight) {
+        this.weight = weight;
+        this.curWeight = curWeight;
+    }
 }
