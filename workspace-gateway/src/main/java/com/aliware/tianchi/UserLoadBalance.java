@@ -24,7 +24,7 @@ public class UserLoadBalance implements LoadBalance {
 
     static CompletableFuture<Result> completableFuture = null;
     boolean ispass = false;
-  static   Map map=SmoothWeight.servers;
+    static Map map = SmoothWeight.servers;
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
@@ -98,39 +98,44 @@ public class UserLoadBalance implements LoadBalance {
             long stopTime = System.currentTimeMillis();
 
             long time = stopTime - startTime;
-             updateWeight(map,invoker.getUrl().getHost(),time,timeout);
+            updateWeight(map, invoker.getUrl().getHost(), time, timeout);
         }
-    /*    if (result.getAttachment(POOL_CORE_COUNT) != null) {
+        if (result.getAttachment(POOL_CORE_COUNT) != null) {
             String params = result.getAttachment(POOL_CORE_COUNT);
             int activeThread = Integer.parseInt(params.split("\t")[0]);
             int thread = Integer.parseInt(params.split("\t")[1]);
-            System.out.println("activethread=====" + activeThread);
-            System.out.println("thereads=======" + thread);
-        }*/
+            updateThreadWeight(map,invoker.getUrl().getHost(),activeThread,thread);
+        }
 
-        if (result.hasException()) {
+     /*   if (result.hasException()) {
             System.out.println("exception====" + result.getException());
 
+        }*/
+    }
+
+    public static void updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
+        if (thread-activeThread<=10) {
+            SmoothServer smoothServer = new SmoothServer(host, 1, 0);
+            map.put(host, smoothServer);
         }
     }
 
-    public static void updateWeight(Map<String, SmoothServer> map,String host,long time,long timeout){
-        if(time<timeout){
-           if(time<400){
-               SmoothServer  smoothServer=new SmoothServer(host, 3, 0);
-               map.put(host,smoothServer);
+    public static void updateWeight(Map<String, SmoothServer> map, String host, long time, long timeout) {
+        if (time < timeout) {
+            if (time < 400) {
+                SmoothServer smoothServer = new SmoothServer(host, 3, 0);
+                map.put(host, smoothServer);
 
 
+            } else if (time < 700 && time >= 400) {
+                SmoothServer smoothServer = new SmoothServer(host, 2, 0);
+                map.put(host, smoothServer);
 
-           }else if(time<700&&time>=400){
-               SmoothServer  smoothServer=new SmoothServer(host, 2, 0);
-               map.put(host,smoothServer);
+            } else {
+                SmoothServer smoothServer = new SmoothServer(host, 1, 0);
+                map.put(host, smoothServer);
 
-           }else{
-               SmoothServer  smoothServer=new SmoothServer(host, 1, 0);
-               map.put(host,smoothServer);
-
-           }
+            }
         }
 
     }
@@ -143,10 +148,9 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println(smoothServer.getWeight());
 
         }*/
-        for(int i=0;i<10;i++){
+        for (int i = 0; i < 10; i++) {
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }
-
 
 
     }
