@@ -56,6 +56,8 @@ public class TestClientFilter implements Filter {
             // System.out.println(result.getAttachment("quota"));
 /*
             System.out.println("Available======="+invoker.isAvailable());*/
+
+
             UserLoadBalance.add(result,invoker,invocation);
 /*
             if (result.hasException()) {

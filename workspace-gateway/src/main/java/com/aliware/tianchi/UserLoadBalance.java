@@ -9,6 +9,8 @@ import org.apache.dubbo.rpc.cluster.LoadBalance;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author daofeng.xjf
@@ -93,22 +95,29 @@ public class UserLoadBalance implements LoadBalance {
 
     public static void getResult(Result result, Invoker<?> invoker, Invocation invocation) {
         int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
-        if (result.getAttachment(POOL_CORE_COUNT) != null) {
-            String params = result.getAttachment(POOL_CORE_COUNT);
-            int activeThread = Integer.parseInt(params.split("\t")[0]);
-            int thread = Integer.parseInt(params.split("\t")[1]);
+        String host = invoker.getUrl().getHost();
+        if (!result.hasException()) {
+            if (result.getAttachment(POOL_CORE_COUNT) != null) {
+                String params = result.getAttachment(POOL_CORE_COUNT);
+                int activeThread = Integer.parseInt(params.split("\t")[0]);
+                int thread = Integer.parseInt(params.split("\t")[1]);
 
-            if(updateThreadWeight(map,invoker.getUrl().getHost(),activeThread,thread)){
-                return;
+                    if (updateThreadWeight(map, host, activeThread, thread)) {
+                        return;
+                    }
+                    if (result.getAttachment(START_TIME) != null) {
+                        long startTime = Long.parseLong(result.getAttachment(START_TIME));
+                        long stopTime = System.currentTimeMillis();
+
+                        long time = stopTime - startTime;
+                        updateWeight(map, host, time, timeout);
+                    }
             }
+        } else {
+            SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+            map.put(host, smoothServer);
         }
-        if (result.getAttachment(START_TIME) != null) {
-            long startTime = Long.parseLong(result.getAttachment(START_TIME));
-            long stopTime = System.currentTimeMillis();
 
-            long time = stopTime - startTime;
-            updateWeight(map, invoker.getUrl().getHost(), time, timeout);
-        }
 
 
      /*   if (result.hasException()) {
@@ -117,9 +126,9 @@ public class UserLoadBalance implements LoadBalance {
         }*/
     }
 
-    public static boolean  updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
-        if (thread-activeThread<=40) {
-            if(thread-activeThread<=10){
+    public static boolean updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
+        if (thread - activeThread <= 40) {
+            if (thread - activeThread <= 10) {
                 SmoothServer smoothServer = new SmoothServer(host, 0, 0);
                 map.put(host, smoothServer);
                 return true;
@@ -159,7 +168,12 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println(smoothServer.getWeight());
 
         }*/
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
+ /*           if(i==5){
+             map.put("provider-large",new SmoothServer(0,0));
+            }
+            map.put("provider-large",new SmoothServer(1,0));*/
+
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }
 
