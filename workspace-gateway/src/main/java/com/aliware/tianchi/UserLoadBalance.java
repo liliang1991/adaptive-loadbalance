@@ -119,13 +119,14 @@ public class UserLoadBalance implements LoadBalance {
 
     public static boolean  updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
         if (thread-activeThread<=40) {
+            if(thread-activeThread<=2){
+                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+                map.put(host, smoothServer);
+                return true;
+            }
             SmoothServer smoothServer = new SmoothServer(host, 1, 0);
             map.put(host, smoothServer);
             return true;
-        }else if(thread-activeThread<=2){
-            SmoothServer smoothServer = new SmoothServer(host, 0, 0);
-            map.put(host, smoothServer);
-            return  true;
         }
         return false;
     }
