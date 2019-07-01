@@ -93,6 +93,15 @@ public class UserLoadBalance implements LoadBalance {
 
     public static void getResult(Result result, Invoker<?> invoker, Invocation invocation) {
         int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+        if (result.getAttachment(POOL_CORE_COUNT) != null) {
+            String params = result.getAttachment(POOL_CORE_COUNT);
+            int activeThread = Integer.parseInt(params.split("\t")[0]);
+            int thread = Integer.parseInt(params.split("\t")[1]);
+
+            if(updateThreadWeight(map,invoker.getUrl().getHost(),activeThread,thread)){
+                return;
+            }
+        }
         if (result.getAttachment(START_TIME) != null) {
             long startTime = Long.parseLong(result.getAttachment(START_TIME));
             long stopTime = System.currentTimeMillis();
@@ -100,12 +109,7 @@ public class UserLoadBalance implements LoadBalance {
             long time = stopTime - startTime;
             updateWeight(map, invoker.getUrl().getHost(), time, timeout);
         }
-        if (result.getAttachment(POOL_CORE_COUNT) != null) {
-            String params = result.getAttachment(POOL_CORE_COUNT);
-            int activeThread = Integer.parseInt(params.split("\t")[0]);
-            int thread = Integer.parseInt(params.split("\t")[1]);
-            updateThreadWeight(map,invoker.getUrl().getHost(),activeThread,thread);
-        }
+
 
      /*   if (result.hasException()) {
             System.out.println("exception====" + result.getException());
@@ -113,11 +117,13 @@ public class UserLoadBalance implements LoadBalance {
         }*/
     }
 
-    public static void updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
-        if (thread-activeThread<=10) {
+    public static boolean  updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
+        if (thread-activeThread<=40) {
             SmoothServer smoothServer = new SmoothServer(host, 1, 0);
             map.put(host, smoothServer);
+            return true;
         }
+        return false;
     }
 
     public static void updateWeight(Map<String, SmoothServer> map, String host, long time, long timeout) {
