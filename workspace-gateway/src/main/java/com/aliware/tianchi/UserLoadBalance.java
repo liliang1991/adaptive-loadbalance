@@ -122,6 +122,10 @@ public class UserLoadBalance implements LoadBalance {
             SmoothServer smoothServer = new SmoothServer(host, 1, 0);
             map.put(host, smoothServer);
             return true;
+        }else if(thread-activeThread<=2){
+            SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+            map.put(host, smoothServer);
+            return  true;
         }
         return false;
     }
