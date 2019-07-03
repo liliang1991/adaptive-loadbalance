@@ -3,12 +3,16 @@ package com.aliware.tianchi;
 import com.aliware.tianchi.smooth.SmoothServer;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.extension.ExtensionLoader;
+import org.apache.dubbo.common.threadpool.ThreadPool;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -94,28 +98,35 @@ public class UserLoadBalance implements LoadBalance {
     public static final String START_TIME = "start_time";
 
     public static void getResult(Result result, Invoker<?> invoker, Invocation invocation) {
+        ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
         int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
         String host = invoker.getUrl().getHost();
-        if (!result.hasException()) {
-            if (result.getAttachment(POOL_CORE_COUNT) != null) {
-                String params = result.getAttachment(POOL_CORE_COUNT);
-                int activeThread = Integer.parseInt(params.split("\t")[0]);
-                int thread = Integer.parseInt(params.split("\t")[1]);
 
-                    if (updateThreadWeight(map, host, activeThread, thread)) {
-                        return;
-                    }
-                    if (result.getAttachment(START_TIME) != null) {
-                        long startTime = Long.parseLong(result.getAttachment(START_TIME));
-                        long stopTime = System.currentTimeMillis();
+        if (result.getAttachment(POOL_CORE_COUNT) != null) {
+            String params = result.getAttachment(POOL_CORE_COUNT);
 
-                        long time = stopTime - startTime;
-                        updateWeight(map, host, time, timeout);
-                    }
+            int activeThread = Integer.parseInt(params.split("\t")[0]);
+            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
+
+            if(result.hasException()){
+                System.out.println("activeThead==="+activeThread);
+                System.out.println("thread===="+thread);
+                System.out.println("exception======"+result.getException());
             }
-        } else {
-            SmoothServer smoothServer = new SmoothServer(host, 0, 0);
-            map.put(host, smoothServer);
+
+
+            if (updateThreadWeight(map, host, activeThread, thread)) {
+                // threadPoolExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+                return;
+            }
+            if (result.getAttachment(START_TIME) != null) {
+                long startTime = Long.parseLong(result.getAttachment(START_TIME));
+                long stopTime = System.currentTimeMillis();
+
+                long time = stopTime - startTime;
+                updateWeight(map, host, time, timeout);
+            }
         }
 
 
@@ -124,16 +135,11 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println("exception====" + result.getException());
 
         }*/
-    }
+}
 
     public static boolean updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
-        if (thread - activeThread <= 40) {
-            if (thread - activeThread <= 10) {
-                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
-                map.put(host, smoothServer);
-                return true;
-            }
-            SmoothServer smoothServer = new SmoothServer(host, 1, 0);
+        if (thread - activeThread <= 5) {
+            SmoothServer smoothServer = new SmoothServer(host, 0, 0);
             map.put(host, smoothServer);
             return true;
         }
