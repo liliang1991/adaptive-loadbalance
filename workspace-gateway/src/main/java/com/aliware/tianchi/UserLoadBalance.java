@@ -30,7 +30,7 @@ public class UserLoadBalance implements LoadBalance {
 
     static CompletableFuture<Result> completableFuture = null;
     boolean ispass = false;
-    static Map map = SmoothWeight.servers;
+    static Map<String, SmoothServer> map = SmoothWeight.servers;
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
@@ -102,24 +102,37 @@ public class UserLoadBalance implements LoadBalance {
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
         int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
         String host = invoker.getUrl().getHost();
+        String params = result.getAttachment(POOL_CORE_COUNT);
 
+        int activeThread = Integer.parseInt(params.split("\t")[0]);
+        int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
+        int providerThread = Integer.parseInt(params.split("\t")[1]);
+
+        if (result.hasException()) {
+            System.out.println("activeThead===" + activeThread);
+            System.out.println("thread====" + thread);
+            System.out.println("exception======" + result.getException());
+        }
         if (result.getAttachment(POOL_CORE_COUNT) != null) {
-            String params = result.getAttachment(POOL_CORE_COUNT);
 
-            int activeThread = Integer.parseInt(params.split("\t")[0]);
-            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
+            if (thread == activeThread) {
 
-          /*  if(result.hasException()){
-                System.out.println("activeThead==="+activeThread);
-                System.out.println("thread===="+thread);
-                System.out.println("exception======"+result.getException());
-            }*/
-
-
-            if (updateThreadWeight(map, host, activeThread, thread)) {
-                // threadPoolExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
-                return;
+                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+                map.put(host, smoothServer);
+                return ;
             }
+
+            if(activeThread<providerThread*0.8){
+                    SmoothServer smoothServer = new SmoothServer(host, map.get(host).getWeight()+1, 0);
+                    map.put(host, smoothServer);
+                    return ;
+            }else if(activeThread>=providerThread*0.9){
+                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+                map.put(host, smoothServer);
+                return ;
+            }
+
+
             if (result.getAttachment(START_TIME) != null) {
                 long startTime = Long.parseLong(result.getAttachment(START_TIME));
                 long stopTime = System.currentTimeMillis();
@@ -135,14 +148,10 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println("exception====" + result.getException());
 
         }*/
-}
+    }
 
     public static boolean updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
-        if (thread - activeThread <= 5) {
-            SmoothServer smoothServer = new SmoothServer(host, 0, 0);
-            map.put(host, smoothServer);
-            return true;
-        }
+
         return false;
     }
 
