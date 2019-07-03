@@ -109,11 +109,11 @@ public class UserLoadBalance implements LoadBalance {
             int activeThread = Integer.parseInt(params.split("\t")[0]);
             int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
 
-            if(result.hasException()){
+          /*  if(result.hasException()){
                 System.out.println("activeThead==="+activeThread);
                 System.out.println("thread===="+thread);
                 System.out.println("exception======"+result.getException());
-            }
+            }*/
 
 
             if (updateThreadWeight(map, host, activeThread, thread)) {
