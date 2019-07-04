@@ -32,8 +32,10 @@ public class CallbackServiceImpl implements CallbackService {
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
                         try {
-                            entry.getValue().receiveServerMsg(System.getProperty("quota") + " " + new Date().toString());
+
+                            entry.getValue().receiveServerMsg(new Date().toString());
                         } catch (Throwable t1) {
+                            System.out.println(t1.getMessage()+"exceipnt=====");
                             listeners.remove(entry.getKey());
                         }
                     }

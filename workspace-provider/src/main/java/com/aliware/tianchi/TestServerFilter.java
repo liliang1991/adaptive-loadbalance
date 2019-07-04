@@ -10,6 +10,7 @@ import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcException;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -48,7 +49,11 @@ public class TestServerFilter implements Filter {
             System.out.println("最大线程数======"+map.get("dubbo").getThreads());
             System.out.println("线程池类型为======"+map.get("dubbo").getThreadpool());
             System.out.println("核心线程池为======"+map.get("dubbo").getCorethreads());*/
+            long startTime = System.currentTimeMillis();
+
             Result result = invoker.invoke(invocation);
+            result.setAttachment(START_TIME, String.valueOf(startTime));
+
   /*          if(result.getException()!=null)
             System.out.println(result.getException().getMessage());*/
             // System.out.println(result.getValue());
@@ -65,10 +70,12 @@ public class TestServerFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        long startTime = System.currentTimeMillis();
-        result.setAttachment(START_TIME, String.valueOf(startTime));
-
+       // System.out.println("value===="+new Date(result.getValue().toString()).getTime());
         result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
+
+        if(result.hasException()){
+            System.out.println("exception====="+result.getException());
+        }
     /*    int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
         int threadcount=map.get("dubbo").getThreads();
 

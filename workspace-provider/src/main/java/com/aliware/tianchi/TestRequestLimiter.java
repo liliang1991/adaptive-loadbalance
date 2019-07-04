@@ -27,6 +27,8 @@ public class TestRequestLimiter implements RequestLimiter {
 
     @Override
     public boolean tryAcquire(Request request, int activeTaskCount) {
+        //System.out.println("quata======"+System.getProperty("quota")+activeTaskCount);
+      //  System.out.println("v====="+request.getData());
         Invocation invocation = (Invocation) request.getData();
 
         invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));
