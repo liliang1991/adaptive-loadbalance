@@ -122,7 +122,7 @@ public class UserLoadBalance implements LoadBalance {
                 return ;
             }
 
-            if(activeThread<providerThread*0.8){
+          /*  if(activeThread<providerThread*0.8){
                     SmoothServer smoothServer = new SmoothServer(host, map.get(host).getWeight()+1, 0);
                     map.put(host, smoothServer);
                     return ;
@@ -131,7 +131,7 @@ public class UserLoadBalance implements LoadBalance {
                 map.put(host, smoothServer);
                 return ;
             }
-
+*/
 
             if (result.getAttachment(START_TIME) != null) {
                 long startTime = Long.parseLong(result.getAttachment(START_TIME));
@@ -166,11 +166,17 @@ public class UserLoadBalance implements LoadBalance {
                 SmoothServer smoothServer = new SmoothServer(host, 2, 0);
                 map.put(host, smoothServer);
 
-            } else {
+            } else if(time<900){
                 SmoothServer smoothServer = new SmoothServer(host, 1, 0);
                 map.put(host, smoothServer);
 
+            }else{
+                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+                map.put(host, smoothServer);
             }
+        }else {
+            SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+            map.put(host, smoothServer);
         }
 
     }
@@ -183,13 +189,13 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println(smoothServer.getWeight());
 
         }*/
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 1000; i++) {
  /*           if(i==5){
              map.put("provider-large",new SmoothServer(0,0));
             }
             map.put("provider-large",new SmoothServer(1,0));*/
-
-            System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
+            System.out.println(new Date().getTime());
+            //System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }
 
 
