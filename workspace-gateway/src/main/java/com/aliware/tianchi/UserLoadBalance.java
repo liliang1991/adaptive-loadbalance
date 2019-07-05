@@ -7,6 +7,7 @@ import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.threadpool.ThreadPool;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
+import org.apache.dubbo.rpc.cluster.loadbalance.AbstractLoadBalance;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -24,32 +25,38 @@ import java.util.concurrent.locks.ReentrantLock;
  * 此类可以修改实现，不可以移动类或者修改包名
  * 选手需要基于此类实现自己的负载均衡算法
  */
-public class UserLoadBalance implements LoadBalance {
+public class UserLoadBalance implements  LoadBalance {
     public static final String WEIGHT = "weight";
     // static CompletableFuture<Result> completableFuture=new CompletableFuture<>();
 
     static CompletableFuture<Result> completableFuture = null;
-    boolean ispass = false;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
 
+/*
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
-    /*    completableFuture.supplyAsync( Result res,Executor executor) {
+    */
+/*    completableFuture.supplyAsync( Result res,Executor executor) {
             return asyncSupplyStage(screenExecutor(executor), supplier);
-        }*/
+        }*//*
 
-   /*     completableFuture.whenComplete((res, e) ->
+
+     */
+/*     completableFuture.whenComplete((res, e) ->
         {
             System.out.println("结果：" + res);
-        });*/
+        });*//*
+
         Invoker invoker = null;
         try {
-     /*     Map<String,String> map= url.getParameters();
+     */
+/*     Map<String,String> map= url.getParameters();
             for (Map.Entry<String, String> entry : map.entrySet()) {
 
                 System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
 
-            }*/
+            }*//*
+
             //System.out.println("url===="+ url.getParameters().get(WEIGHT));
             //    System.out.println("url===="+invoker.getUrl().getHost());
             invoker = invokers.get(SmoothWeight.getServer(SmoothWeight.sumWeight()));
@@ -58,9 +65,12 @@ public class UserLoadBalance implements LoadBalance {
             e.printStackTrace();
         }
 
-     /*   RpcStatus status= RpcStatus.getStatus(url);
-        System.out.println(status.getAverageTps());*/
-       /*  Map<String,String> map=invocation.getAttachments();
+     */
+/*   RpcStatus status= RpcStatus.getStatus(url);
+        System.out.println(status.getAverageTps());*//*
+
+     */
+/*  Map<String,String> map=invocation.getAttachments();
         try {
             Cf.completableFuture = CompletableFuture.supplyAsync(() -> {
                 Invoker invoker=invokers.get(SmoothWeight.getServer(6));
@@ -74,10 +84,112 @@ public class UserLoadBalance implements LoadBalance {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;*/
+        return null;*//*
+
 
         return invoker;
 
+    }
+*/
+public static final String POOL_CORE_COUNT = "active_thread";
+
+
+    @Override
+    public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
+        // Number of invokers
+
+        int length = invokers.size();
+        // The least active value of all invokers
+        int leastActive = -1;
+        // The number of invokers having the same least active value (leastActive)
+        int leastCount = 0;
+        // The index of invokers having the same least active value (leastActive)
+        int[] leastIndexes = new int[length];
+        // the weight of every invokers
+        int[] weights = new int[length];
+        // The sum of the warmup weights of all the least active invokes
+        int totalWeight = 0;
+        // The weight of the first least active invoke
+        int firstWeight = 0;
+        // Every least active invoker has the same weight value?
+        boolean sameWeight = true;
+
+        // Filter out all the least active invokers
+        for (int i = 0; i < length; i++) {
+            Invoker<T> invoker = invokers.get(i);
+
+
+            // Get the active number of the invoke
+          //  RpcStatus.getStatus(invoker.getUrl()).getActive()
+            int active=0;
+            try {
+                if(RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).get(POOL_CORE_COUNT)!=null) {
+                      if(i==0) {
+                          active = Integer.parseInt(RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).get(POOL_CORE_COUNT).toString());
+                      }else {
+                          active=active*i;
+                      }
+
+
+                    /*    if(active==200){
+                        continue;
+                    }*/
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            // Get the weight of the invoke configuration. The default value is 100.
+            int afterWarmup = SmoothWeight.sumWeight();
+            // save for later use
+            weights[i] = afterWarmup;
+            // If it is the first invoker or the active number of the invoker is less than the current least active number
+            if (leastActive == -1 || active < leastActive) {
+                // Reset the active number of the current invoker to the least active number
+                leastActive = active;
+                // Reset the number of least active invokers
+                leastCount = 1;
+                // Put the first least active invoker first in leastIndexes
+                leastIndexes[0] = i;
+                // Reset totalWeight
+                totalWeight = afterWarmup;
+                // Record the weight the first least active invoker
+                firstWeight = afterWarmup;
+                // Each invoke has the same weight (only one invoker here)
+                sameWeight = true;
+                // If current invoker's active value equals with leaseActive, then accumulating.
+            } else if (active == leastActive) {
+                // Record the index of the least active invoker in leastIndexes order
+                leastIndexes[leastCount++] = i;
+                // Accumulate the total weight of the least active invoker
+                totalWeight += afterWarmup;
+                // If every invoker has the same weight?
+                if (sameWeight && i > 0
+                        && afterWarmup != firstWeight) {
+                    sameWeight = false;
+                }
+            }
+        }
+        // Choose an invoker from all the least active invokers
+        if (leastCount == 1) {
+            // If we got exactly one invoker having the least active value, return this invoker directly.
+
+            return invokers.get(leastIndexes[0]);
+        }
+        if (!sameWeight && totalWeight > 0) {
+            // If (not every invoker has the same weight & at least one invoker's weight>0), select randomly based on
+            // totalWeight.
+            int offsetWeight = ThreadLocalRandom.current().nextInt(totalWeight);
+            // Return a invoker based on the random value.
+            for (int i = 0; i < leastCount; i++) {
+                int leastIndex = leastIndexes[i];
+                offsetWeight -= weights[leastIndex];
+                if (offsetWeight < 0) {
+                    return invokers.get(leastIndex);
+                }
+            }
+        }
+        // If all invokers have the same weight value or totalWeight=0, return evenly.
+        return invokers.get(leastIndexes[ThreadLocalRandom.current().nextInt(leastCount)]);
     }
 
     public static void add(Result result, Invoker<?> invoker, Invocation invocation) {
@@ -94,10 +206,22 @@ public class UserLoadBalance implements LoadBalance {
 
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
 
-    public static final String POOL_CORE_COUNT = "active_thread";
     public static final String START_TIME = "start_time";
 
+    public void getWeights(Result result, Invoker<?> invoker, Invocation invocation) {
+     /*   int length = invokers.size(); // 总个数
+        int leastActive = -1; // 最小的活跃数
+        int leastCount = 0; // 相同最小活跃数的个数
+        int[] leastIndexs = new int[length]; // 相同最小活跃数的下标
+        int totalWeight = 0; // 总权重
+        int firstWeight = 0; // 第一个权重，用于于计算是否相同
+        boolean sameWeight = true; // 是否所有权重相同
+*/
+
+    }
+
     public static void getResult(Result result, Invoker<?> invoker, Invocation invocation) {
+
         ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
         int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
@@ -105,6 +229,8 @@ public class UserLoadBalance implements LoadBalance {
         String params = result.getAttachment(POOL_CORE_COUNT);
 
         int activeThread = Integer.parseInt(params.split("\t")[0]);
+        RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).set(POOL_CORE_COUNT,params.split("\t")[0]);
+
         int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
         int providerThread = Integer.parseInt(params.split("\t")[1]);
 
@@ -113,34 +239,22 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println("thread====" + thread);
             System.out.println("exception======" + result.getException());
         }
-        if (result.getAttachment(POOL_CORE_COUNT) != null) {
-
-            if (thread == activeThread) {
-
-                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
-                map.put(host, smoothServer);
-                return ;
-            }
-
-          /*  if(activeThread<providerThread*0.8){
-                    SmoothServer smoothServer = new SmoothServer(host, map.get(host).getWeight()+1, 0);
-                    map.put(host, smoothServer);
-                    return ;
-            }else if(activeThread>=providerThread*0.9){
-                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
-                map.put(host, smoothServer);
-                return ;
-            }
-*/
-
-            if (result.getAttachment(START_TIME) != null) {
-                long startTime = Long.parseLong(result.getAttachment(START_TIME));
-                long stopTime = System.currentTimeMillis();
-
-                long time = stopTime - startTime;
-                updateWeight(map, host, time, timeout);
-            }
-        }
+//        if (result.getAttachment(POOL_CORE_COUNT) != null) {
+//
+//            if (thread == activeThread) {
+//
+//                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+//                map.put(host, smoothServer);
+//                return;
+//            }
+//          /*  if (result.getAttachment(START_TIME) != null) {
+//                long startTime = Long.parseLong(result.getAttachment(START_TIME));
+//                long stopTime = System.currentTimeMillis();
+//
+//                long time = stopTime - startTime;
+//                updateWeight(map, host, time, timeout);
+//            }*/
+//        }
 
 
 
@@ -166,15 +280,15 @@ public class UserLoadBalance implements LoadBalance {
                 SmoothServer smoothServer = new SmoothServer(host, 2, 0);
                 map.put(host, smoothServer);
 
-            } else if(time<900){
+            } else if (time < 900) {
                 SmoothServer smoothServer = new SmoothServer(host, 1, 0);
                 map.put(host, smoothServer);
 
-            }else{
+            } else {
                 SmoothServer smoothServer = new SmoothServer(host, 0, 0);
                 map.put(host, smoothServer);
             }
-        }else {
+        } else {
             SmoothServer smoothServer = new SmoothServer(host, 0, 0);
             map.put(host, smoothServer);
         }
