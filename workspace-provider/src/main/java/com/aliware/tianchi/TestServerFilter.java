@@ -4,11 +4,7 @@ import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
-import org.apache.dubbo.rpc.Filter;
-import org.apache.dubbo.rpc.Invocation;
-import org.apache.dubbo.rpc.Invoker;
-import org.apache.dubbo.rpc.Result;
-import org.apache.dubbo.rpc.RpcException;
+import org.apache.dubbo.rpc.*;
 
 import java.util.Date;
 import java.util.Map;
@@ -76,8 +72,10 @@ public class TestServerFilter implements Filter {
         if(result.hasException()){
             System.out.println("exception====="+result.getException());
         }
-    /*    int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
-        int threadcount=map.get("dubbo").getThreads();
+        int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
+     //   RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).set(POOL_CORE_COUNT,String.valueOf(coreCount));
+
+      /*  int threadcount=map.get("dubbo").getThreads();
 
      */
      /*   if (result.hasException()) {
