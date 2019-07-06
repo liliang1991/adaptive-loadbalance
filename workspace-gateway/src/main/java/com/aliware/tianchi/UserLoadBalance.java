@@ -26,17 +26,17 @@ import java.util.concurrent.locks.ReentrantLock;
  * 此类可以修改实现，不可以移动类或者修改包名
  * 选手需要基于此类实现自己的负载均衡算法
  */
-public class UserLoadBalance implements  LoadBalance {
+public class UserLoadBalance implements LoadBalance {
     public static final String WEIGHT = "weight";
     // static CompletableFuture<Result> completableFuture=new CompletableFuture<>();
 
     static CompletableFuture<Result> completableFuture = null;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
 
-/*
-    @Override
-    public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
-    */
+    /*
+        @Override
+        public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
+        */
 /*    completableFuture.supplyAsync( Result res,Executor executor) {
             return asyncSupplyStage(screenExecutor(executor), supplier);
         }*//*
@@ -92,7 +92,7 @@ public class UserLoadBalance implements  LoadBalance {
 
     }
 */
-public static final String POOL_CORE_COUNT = "active_thread";
+    public static final String POOL_CORE_COUNT = "active_thread";
 
 
     @Override
@@ -221,21 +221,23 @@ public static final String POOL_CORE_COUNT = "active_thread";
 
     public static void getResult(Result result, Invoker<?> invoker, Invocation invocation) {
 
-        ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
-   //     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
-     //   int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
-        String host = invoker.getUrl().getHost();
-        String params = result.getAttachment(POOL_CORE_COUNT);
+       try {
+           ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
+           //     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
+           //   int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+           String host = invoker.getUrl().getHost();
+           String params = result.getAttachment(POOL_CORE_COUNT);
+          if(params!=null) {
+              int activeThread = Integer.parseInt(params.split("\t")[0]);
 
-        int activeThread = Integer.parseInt(params.split("\t")[0]);
 
-
-        int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
-        int providerThread = Integer.parseInt(params.split("\t")[1]);
-        DecimalFormat df   = new DecimalFormat("######0.00");
-        double totalThread=(double) activeThread/200;
-      double threadbl=(double) activeThread/providerThread;
-        int w=1;
+              int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
+              int providerThread = Integer.parseInt(params.split("\t")[1]);
+              DecimalFormat df = new DecimalFormat("######0.00");
+              // double totalThread = 1-((double) activeThread / 200);
+              double threadbl = 1 - ((double) activeThread / providerThread);
+              double w = 0;
+              // int w=1;
     /*   if(invoker.getUrl().getHost().equals("provider-small")){
            w=1;
        }else if(invoker.getUrl().getHost().equals("provider-medium")){
@@ -243,21 +245,31 @@ public static final String POOL_CORE_COUNT = "active_thread";
        }else {
            w=3;
        }*/
-       totalThread=Double.parseDouble(df.format(((totalThread))));
-        threadbl=Double.parseDouble(df.format(((threadbl))));
+              long time = 0;
+              if(threadbl>0.15) {
+                  if (result.getAttachment(START_TIME) != null) {
+                      long startTime = Long.parseLong(result.getAttachment(START_TIME));
+                      long stopTime = System.currentTimeMillis();
+                      time = stopTime - startTime;
+                      w += Double.parseDouble(df.format(1 - (time / 1000)));
+                  }
+              }
+              //   w += Double.parseDouble(df.format(((totalThread))));
+              w += Double.parseDouble(df.format(((threadbl))));
 
-        //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
-      double res=(1-totalThread);
-     //   System.out.println("res======"+res+"\t"+host+"\t"+activeThread+"\t"+providerThread);
-        RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).set(POOL_CORE_COUNT,res);
-        SmoothServer smoothServer = new SmoothServer(host, res, res);
+              //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
+              int res = new Double(w * 100).intValue();
+              //System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
+              //RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).set(POOL_CORE_COUNT, res);
+              SmoothServer smoothServer = new SmoothServer(host, res, 0);
 
-        map.put(host, smoothServer);
-        if (result.hasException()) {
+              map.put(host, smoothServer);
+   /*     if (result.hasException()) {
             System.out.println("activeThead===" + activeThread);
             System.out.println("thread====" + thread);
             System.out.println("exception======" + result.getException());
-        }
+        }*/
+
 //        if (result.getAttachment(POOL_CORE_COUNT) != null) {
 //
 //            if (thread == activeThread) {
@@ -281,6 +293,11 @@ public static final String POOL_CORE_COUNT = "active_thread";
             System.out.println("exception====" + result.getException());
 
         }*/
+          }
+       }catch (Exception e){
+           e.printStackTrace();
+       }
+
     }
 
     public static boolean updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
@@ -322,15 +339,15 @@ public static final String POOL_CORE_COUNT = "active_thread";
             System.out.println(smoothServer.getWeight());
 
         }*/
-        for (int i = 0; i < 1000; i++) {
- /*           if(i==5){
-             map.put("provider-large",new SmoothServer(0,0));
-            }
-            map.put("provider-large",new SmoothServer(1,0));*/
-            System.out.println(new Date().getTime());
-            //System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
-        }
-
+ /*       for (int i = 0; i < 10; i++) {
+            System.out.println("w===="+SmoothWeight.sumWeight());
+            System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
+        }*/
+      double a=0.16;
+      int a1=100;
+        System.out.println(0.16*a1);
+        int   i   =   (new   Double(a*a1)).intValue();
+        System.out.println(i);
 
     }
 
