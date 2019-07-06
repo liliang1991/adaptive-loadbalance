@@ -33,7 +33,8 @@ public class TestClientFilter implements Filter {
             System.out.println(status.getActive());*/
 
             return result;
-        } catch (RpcException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
 

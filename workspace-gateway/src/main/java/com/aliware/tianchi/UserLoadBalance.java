@@ -9,6 +9,7 @@ import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 import org.apache.dubbo.rpc.cluster.loadbalance.AbstractLoadBalance;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -98,9 +99,9 @@ public static final String POOL_CORE_COUNT = "active_thread";
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         // Number of invokers
 
-        int length = invokers.size();
+      /*  int length = invokers.size();
         // The least active value of all invokers
-        int leastActive = -1;
+        double leastActive = -1;
         // The number of invokers having the same least active value (leastActive)
         int leastCount = 0;
         // The index of invokers having the same least active value (leastActive)
@@ -121,19 +122,16 @@ public static final String POOL_CORE_COUNT = "active_thread";
 
             // Get the active number of the invoke
           //  RpcStatus.getStatus(invoker.getUrl()).getActive()
-            int active=0;
+            double active=0;
             try {
                 if(RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).get(POOL_CORE_COUNT)!=null) {
-                      if(i==0) {
-                          active = Integer.parseInt(RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).get(POOL_CORE_COUNT).toString());
-                      }else {
-                          active=active*i;
-                      }
+                    active = Double.parseDouble(RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).get(POOL_CORE_COUNT).toString());
 
 
-                    /*    if(active==200){
+
+                    *//*    if(active==200){
                         continue;
-                    }*/
+                    }*//*
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -189,7 +187,8 @@ public static final String POOL_CORE_COUNT = "active_thread";
             }
         }
         // If all invokers have the same weight value or totalWeight=0, return evenly.
-        return invokers.get(leastIndexes[ThreadLocalRandom.current().nextInt(leastCount)]);
+        return invokers.get(leastIndexes[ThreadLocalRandom.current().nextInt(leastCount)]);*/
+        return invokers.get(SmoothWeight.getServer(SmoothWeight.sumWeight()));
     }
 
     public static void add(Result result, Invoker<?> invoker, Invocation invocation) {
@@ -223,17 +222,37 @@ public static final String POOL_CORE_COUNT = "active_thread";
     public static void getResult(Result result, Invoker<?> invoker, Invocation invocation) {
 
         ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
-        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
-        int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+   //     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
+     //   int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
         String host = invoker.getUrl().getHost();
         String params = result.getAttachment(POOL_CORE_COUNT);
 
         int activeThread = Integer.parseInt(params.split("\t")[0]);
-        RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).set(POOL_CORE_COUNT,params.split("\t")[0]);
+
 
         int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
         int providerThread = Integer.parseInt(params.split("\t")[1]);
+        DecimalFormat df   = new DecimalFormat("######0.00");
+        double totalThread=(double) activeThread/200;
+      double threadbl=(double) activeThread/providerThread;
+        int w=1;
+    /*   if(invoker.getUrl().getHost().equals("provider-small")){
+           w=1;
+       }else if(invoker.getUrl().getHost().equals("provider-medium")){
+           w=2;
+       }else {
+           w=3;
+       }*/
+       totalThread=Double.parseDouble(df.format(((totalThread))));
+        threadbl=Double.parseDouble(df.format(((threadbl))));
 
+        //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
+      double res=(1-totalThread);
+     //   System.out.println("res======"+res+"\t"+host+"\t"+activeThread+"\t"+providerThread);
+        RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).set(POOL_CORE_COUNT,res);
+        SmoothServer smoothServer = new SmoothServer(host, res, res);
+
+        map.put(host, smoothServer);
         if (result.hasException()) {
             System.out.println("activeThead===" + activeThread);
             System.out.println("thread====" + thread);
