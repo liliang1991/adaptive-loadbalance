@@ -24,15 +24,25 @@ public class TestRequestLimiter implements RequestLimiter {
      * true 不限流
      */
     public static final String POOL_CORE_COUNT = "active_thread";
+    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
 
     @Override
     public boolean tryAcquire(Request request, int activeTaskCount) {
         //System.out.println("quata======"+System.getProperty("quota")+activeTaskCount);
       //  System.out.println("v====="+request.getData());
-        Invocation invocation = (Invocation) request.getData();
+      try {
+          if(activeTaskCount>=map.get("dubbo").getThreads()*0.9){
+              return false;
+          }
+          map.get("dubbo").setCorethreads(activeTaskCount);
+          Invocation invocation = (Invocation) request.getData();
 
-        invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));
-        return true;
+          invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));
+          return true;
+      }catch (Exception e){
+          e.printStackTrace();
+      }
+        return false;
     }
 
 }

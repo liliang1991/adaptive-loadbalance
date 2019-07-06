@@ -67,12 +67,21 @@ public class TestServerFilter implements Filter {
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
        // System.out.println("value===="+new Date(result.getValue().toString()).getTime());
-        result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
+        try {
+            result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
 
-        if(result.hasException()){
-            System.out.println("exception====="+result.getException());
+            if(result.hasException()){
+                System.out.println("exception====="+result.getException());
+            }
+            int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
+            if(coreCount>=map.get("dubbo").getThreads()){
+                System.out.println(">>>>>");
+            }
+        }catch (Exception e){
+          e.printStackTrace();
         }
-        int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
+
+
      //   RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).set(POOL_CORE_COUNT,String.valueOf(coreCount));
 
       /*  int threadcount=map.get("dubbo").getThreads();

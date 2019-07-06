@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 用户可以基于此服务，实现服务端向客户端动态推送的功能
  */
 public class CallbackServiceImpl implements CallbackService {
+    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
 
     public CallbackServiceImpl() {
 
@@ -27,7 +28,7 @@ public class CallbackServiceImpl implements CallbackService {
             @Override
             public void run() {
 
-           /*     System.out.println("最大线程数===="+map.get("dubbo").getThreads());
+      /*          System.out.println("最大线程数===="+map.get("dubbo").getThreads());
                 System.out.println("核心线程数====="+map.get("dubbo").getCorethreads());*/
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
@@ -41,7 +42,7 @@ public class CallbackServiceImpl implements CallbackService {
                     }
                 }
             }
-        }, 0, 1);
+        }, 0, 1000);
 
     }
 
