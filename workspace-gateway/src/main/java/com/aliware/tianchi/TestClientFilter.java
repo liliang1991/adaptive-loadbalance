@@ -26,7 +26,9 @@ public class TestClientFilter implements Filter {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try {
-
+            long startTime=System.currentTimeMillis();
+           RpcInvocation ivc=  (RpcInvocation) invocation;
+           ivc.setAttachment(START_TIME,String.valueOf(startTime));
             Result result = invoker.invoke(invocation);
 /*            URL url=invocation.getInvoker().getUrl();
             RpcStatus status= RpcStatus.getStatus(url);
@@ -60,9 +62,10 @@ public class TestClientFilter implements Filter {
             // System.out.println(result.getAttachment("quota"));
 /*
             System.out.println("Available======="+invoker.isAvailable());*/
-
-
-            UserLoadBalance.add(result,invoker,invocation);
+        long startTime= Long.parseLong(invocation.getAttachment(START_TIME));
+            long stopTime = System.currentTimeMillis();
+            long time=stopTime-startTime;
+          UserLoadBalance.add(result,invoker,invocation,time);
 /*
             if (result.hasException()) {
                 System.out.println("exception===="+result.getException());
