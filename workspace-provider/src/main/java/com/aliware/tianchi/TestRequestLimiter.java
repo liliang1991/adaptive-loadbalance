@@ -25,6 +25,7 @@ public class TestRequestLimiter implements RequestLimiter {
      */
     public static final String POOL_CORE_COUNT = "active_thread";
     Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+    public static final String START_TIME = "start_time";
 
     @Override
     public boolean tryAcquire(Request request, int activeTaskCount) {
@@ -39,6 +40,7 @@ public class TestRequestLimiter implements RequestLimiter {
           Invocation invocation = (Invocation) request.getData();
 
           invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));
+
           return true;
       }catch (Exception e){
           e.printStackTrace();
