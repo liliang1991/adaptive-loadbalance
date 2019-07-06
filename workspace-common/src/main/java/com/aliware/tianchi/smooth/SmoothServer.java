@@ -3,15 +3,9 @@ package com.aliware.tianchi.smooth;
 public class SmoothServer {
     private String ip;
 
-    private int weight;
+    private double weight;
 
-    private int curWeight;
-
-    public SmoothServer(String ip, int weight, int curWeight) {
-        this.ip = ip;
-        this.weight = weight;
-        this.curWeight = curWeight;
-    }
+    private double curWeight;
 
     public String getIp() {
         return ip;
@@ -21,23 +15,29 @@ public class SmoothServer {
         this.ip = ip;
     }
 
-    public int getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
-    public int getCurWeight() {
+    public double getCurWeight() {
         return curWeight;
     }
 
-    public void setCurWeight(int curWeight) {
+    public void setCurWeight(double curWeight) {
         this.curWeight = curWeight;
     }
 
-    public SmoothServer(int weight, int curWeight) {
+    public SmoothServer(double weight, double curWeight) {
+        this.weight = weight;
+        this.curWeight = curWeight;
+    }
+
+    public SmoothServer(String ip, double weight, double curWeight) {
+        this.ip = ip;
         this.weight = weight;
         this.curWeight = curWeight;
     }
