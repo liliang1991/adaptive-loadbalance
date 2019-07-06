@@ -28,13 +28,14 @@ public class TestRequestLimiter implements RequestLimiter {
 
     @Override
     public boolean tryAcquire(Request request, int activeTaskCount) {
+
         //System.out.println("quata======"+System.getProperty("quota")+activeTaskCount);
       //  System.out.println("v====="+request.getData());
       try {
-          if(activeTaskCount>=map.get("dubbo").getThreads()*0.9){
+/*          if(activeTaskCount>=map.get("dubbo").getThreads()*0.9){
               return false;
           }
-          map.get("dubbo").setCorethreads(activeTaskCount);
+          map.get("dubbo").setCorethreads(activeTaskCount);*/
           Invocation invocation = (Invocation) request.getData();
 
           invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));

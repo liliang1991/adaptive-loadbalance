@@ -1,10 +1,13 @@
 package com.aliware.tianchi;
 
 import org.apache.dubbo.common.Constants;
+import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.*;
+import org.apache.dubbo.rpc.filter.tps.DefaultTPSLimiter;
+import org.apache.dubbo.rpc.filter.tps.TPSLimiter;
 
 import java.util.Date;
 import java.util.Map;
@@ -19,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Activate(group = Constants.PROVIDER)
 public class TestServerFilter implements Filter {
+
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
@@ -45,9 +49,11 @@ public class TestServerFilter implements Filter {
             System.out.println("最大线程数======"+map.get("dubbo").getThreads());
             System.out.println("线程池类型为======"+map.get("dubbo").getThreadpool());
             System.out.println("核心线程池为======"+map.get("dubbo").getCorethreads());*/
+
             long startTime = System.currentTimeMillis();
 
             Result result = invoker.invoke(invocation);
+
             result.setAttachment(START_TIME, String.valueOf(startTime));
 
   /*          if(result.getException()!=null)
@@ -67,6 +73,8 @@ public class TestServerFilter implements Filter {
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
        // System.out.println("value===="+new Date(result.getValue().toString()).getTime());
+       // map.get("dubbo").setDispatcher("message");
+      //  System.out.println("path===="+map.get("dubbo").getDispatcher());
         try {
             result.setAttachment(POOL_CORE_COUNT, invocation.getAttachment(POOL_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
 
