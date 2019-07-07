@@ -3,9 +3,9 @@ package com.aliware.tianchi.smooth;
 public class SmoothServer {
     private String ip;
 
-    private int weight;
+    private volatile int weight;
 
-    private int curWeight;
+    private volatile int curWeight;
 
     public SmoothServer(String ip, int weight, int curWeight) {
         this.ip = ip;

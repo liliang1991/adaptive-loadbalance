@@ -39,7 +39,9 @@ public class UserLoadBalance implements LoadBalance {
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
-        return invokers.get(SmoothWeight.getServer(SmoothWeight.sumWeight()));
+        int index=SmoothWeight.getServer(SmoothWeight.sumWeight());
+     //   System.out.println("index===="+index+"\t"+SmoothWeight.sumWeight());
+        return invokers.get(index);
     }
 
     public static void add(Result result, Invoker<?> invoker, Invocation invocation,long time) {
@@ -56,18 +58,25 @@ public class UserLoadBalance implements LoadBalance {
 
 
     public static void getResult(Result result, Invoker<?> invoker, Invocation invocation,long time) {
-
+       Lock lock =new ReentrantLock();
         try {
-            ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
+            lock.lock();
+          //  ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
             //     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
             //   int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
             String host = invoker.getUrl().getHost();
             String params = result.getAttachment(POOL_CORE_COUNT);
+      /*      if(time>=950){
+                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
+                map.put(host, smoothServer);
+                return;
+            }*/
             if (params != null) {
+
                 int activeThread = Integer.parseInt(params.split("\t")[0]);
 
 
-                int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
+    //            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
                 int providerThread = Integer.parseInt(params.split("\t")[1]);
                 DecimalFormat df = new DecimalFormat("######0.00");
                 // double totalThread = 1-((double) activeThread / 200);
@@ -81,7 +90,7 @@ public class UserLoadBalance implements LoadBalance {
        }else {
            w=3;
        }*/
-          /*      long time = 0;
+              /*  long time = 0;
                 if (threadbl > 0.15) {
                     if (result.getAttachment(START_TIME) != null) {
                         long startTime =Long.parseLong(invocation.getAttachment(START_TIME));
@@ -93,17 +102,22 @@ public class UserLoadBalance implements LoadBalance {
                     }
                 }*/
                 //   w += Double.parseDouble(df.format(((totalThread))));
-                w += Double.parseDouble(df.format(1 - (time / 1000)));
-
                 w += Double.parseDouble(df.format(((threadbl))));
+           /*   if(w>0.2) {
+                  w += Double.parseDouble(df.format(1 - (time / 1000)));
+              }*/
+                int res = new Double(w * 100).intValue();
+
 
                 //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
-                int res = new Double(w * 100).intValue();
-                //System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
+               // System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
                 //RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).set(POOL_CORE_COUNT, res);
                 SmoothServer smoothServer = new SmoothServer(host, res, 0);
-
                 map.put(host, smoothServer);
+            /*    int sumWeight=SmoothWeight.sumWeight();
+                smoothServer.setCurWeight(smoothServer.getCurWeight()-sumWeight);
+                map.put(host, smoothServer);*/
+
    /*     if (result.hasException()) {
             System.out.println("activeThead===" + activeThread);
             System.out.println("thread====" + thread);
@@ -138,6 +152,8 @@ public class UserLoadBalance implements LoadBalance {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            lock.unlock();
         }
 
     }
@@ -181,16 +197,11 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println(smoothServer.getWeight());
 
         }*/
- /*       for (int i = 0; i < 10; i++) {
-            System.out.println("w===="+SmoothWeight.sumWeight());
+        for (int i = 0; i < 10; i++) {
+           // System.out.println("w===="+SmoothWeight.sumWeight());
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
-        }*/
-        double a = 0.16;
-        int a1 = 100;
-        System.out.println(0.16 * a1);
-        int i = (new Double(a * a1)).intValue();
-        System.out.println(i);
-        System.out.println(0.0*100);
+        }
+
     }
 
 }

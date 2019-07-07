@@ -7,10 +7,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SmoothWeight {
     // static List<SmoothServer> servers = new CopyOnWriteArrayList<SmoothServer>(Arrays.asList(new SmoothServer("provider-small", 1, 0), new SmoothServer("provider-medium", 2, 0), new SmoothServer("provider-large", 3, 0)));
-    static Map<String, SmoothServer> servers =null;
+    static Map<String, SmoothServer> servers = null;
 
     static {
-        servers=new LinkedHashMap<>();
+        servers = new LinkedHashMap<>();
         servers.put("provider-small", new SmoothServer(1, 0));
         servers.put("provider-medium", new SmoothServer(2, 0));
         servers.put("provider-large", new SmoothServer(3, 0));
@@ -36,7 +36,6 @@ public class SmoothWeight {
 */
 
 
-
         int num = 0;
         int i = 0;
         SmoothServer tmpSv = null;
@@ -51,7 +50,11 @@ public class SmoothWeight {
             i++;
 
         }
-        tmpSv.setCurWeight(tmpSv.getCurWeight() - weightCount);
+        int curWeight = tmpSv.getCurWeight() - weightCount;
+        if (curWeight < 0) {
+            curWeight = 0;
+        }
+        tmpSv.setCurWeight(curWeight);
         return num;
 
     }
