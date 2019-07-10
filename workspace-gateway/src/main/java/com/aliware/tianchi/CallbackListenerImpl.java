@@ -1,5 +1,7 @@
 package com.aliware.tianchi;
 
+import org.apache.dubbo.rpc.AsyncContext;
+import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.listener.CallbackListener;
 
 /**
@@ -14,7 +16,10 @@ public class CallbackListenerImpl implements CallbackListener {
 
     @Override
     public void receiveServerMsg(String msg) {
-        //System.out.println("receive msg from server :" + msg);
+        final AsyncContext asyncContext = RpcContext.startAsync();
+        new Thread(() -> {
+            // 切换线程上下文
+            asyncContext.signalContextSwitch();
+        }).start();
     }
-
 }

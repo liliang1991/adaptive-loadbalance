@@ -39,7 +39,9 @@ public class UserLoadBalance implements LoadBalance {
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
+        System.out.println(invokers.size()+"======size");
         int index=SmoothWeight.getServer(SmoothWeight.sumWeight());
+        System.out.println("index===="+index);
      //   System.out.println("index===="+index+"\t"+SmoothWeight.sumWeight());
         return invokers.get(index);
     }
@@ -142,7 +144,9 @@ public class UserLoadBalance implements LoadBalance {
 //        }
 
 
-
+       if(time>=1000){
+           System.out.println("time====="+time);
+       }
      /*   if (result.hasException()) {
             System.out.println("exception====" + result.getException());
 
