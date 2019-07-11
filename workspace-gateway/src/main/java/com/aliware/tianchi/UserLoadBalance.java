@@ -70,10 +70,12 @@ public class UserLoadBalance implements LoadBalance {
         Lock lock = new ReentrantLock();
         try {
             lock.lock();
+            result=(AsyncRpcResult)result.getResult();
             //  ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
             //     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
             //   int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
             String host = invoker.getUrl().getHost();
+            System.out.println(result.toString());
             String params = result.getAttachment(POOL_CORE_COUNT);
       /*      if(time>=950){
                 SmoothServer smoothServer = new SmoothServer(host, 0, 0);

@@ -36,12 +36,16 @@ public class TestClientFilter implements Filter {
             long startTime=System.currentTimeMillis();
             RpcInvocation ivc=  (RpcInvocation) invocation;
             ivc.setAttachment(START_TIME,String.valueOf(startTime));
-            Result result = invoker.invoke(invocation);
+            AsyncRpcResult result = (AsyncRpcResult)invoker.invoke(invocation);
+            return  result.getRpcResult();
+            /*    result.getResultFuture().thenAccept(e -> {
+               System.out.println("get result:"+e);
+           });*/
 /*            URL url=invocation.getInvoker().getUrl();
             RpcStatus status= RpcStatus.getStatus(url);
             System.out.println(status.getActive());*/
 
-            return result;
+       //     return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -72,7 +76,7 @@ public class TestClientFilter implements Filter {
             long startTime= Long.parseLong(invocation.getAttachment(START_TIME));
             long stopTime = System.currentTimeMillis();
             long time=stopTime-startTime;
-            UserLoadBalance.add(result,invoker,invocation,time);
+           // UserLoadBalance.add(result,invoker,invocation,time);
 /*
             if (result.hasException()) {
                 System.out.println("exception===="+result.getException());
