@@ -63,7 +63,7 @@ public class SmoothWeight {
 
     }
 
-    public static int sumWeight() {
+    public  static int sumWeight() {
         int value = 0;
         for (Map.Entry<String, SmoothServer> entry : servers.entrySet()) {
             value += entry.getValue().getWeight();
