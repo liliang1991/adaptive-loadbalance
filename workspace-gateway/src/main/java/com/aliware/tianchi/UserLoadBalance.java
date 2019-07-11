@@ -39,17 +39,24 @@ public class UserLoadBalance implements LoadBalance {
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
-        System.out.println(invokers.size()+"======size");
-        int index=SmoothWeight.getServer(SmoothWeight.sumWeight());
-        System.out.println("index===="+index);
-     //   System.out.println("index===="+index+"\t"+SmoothWeight.sumWeight());
+
+        int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
+        //   System.out.println("index===="+index+"\t"+SmoothWeight.sumWeight());
+
         return invokers.get(index);
+   /*     try {
+          //  return invokers.get(ThreadLocalRandom.current().nextInt(invokers.size()));
+
+        }catch (Exception e){
+            return null;
+        }
+*/
     }
 
-    public static void add(Result result, Invoker<?> invoker, Invocation invocation,long time) {
+    public static void add(Result result, Invoker<?> invoker, Invocation invocation, long time) {
         completableFuture = CompletableFuture.supplyAsync(() ->
         {
-            getResult(result, invoker, invocation,time);
+            getResult(result, invoker, invocation, time);
             return result;
         });
     }
@@ -59,11 +66,11 @@ public class UserLoadBalance implements LoadBalance {
     public static final String START_TIME = "start_time";
 
 
-    public static void getResult(Result result, Invoker<?> invoker, Invocation invocation,long time) {
-       Lock lock =new ReentrantLock();
+    public static void getResult(Result result, Invoker<?> invoker, Invocation invocation, long time) {
+        Lock lock = new ReentrantLock();
         try {
             lock.lock();
-          //  ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
+            //  ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
             //     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
             //   int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
             String host = invoker.getUrl().getHost();
@@ -78,7 +85,7 @@ public class UserLoadBalance implements LoadBalance {
                 int activeThread = Integer.parseInt(params.split("\t")[0]);
 
 
-    //            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
+                //            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
                 int providerThread = Integer.parseInt(params.split("\t")[1]);
                 DecimalFormat df = new DecimalFormat("######0.00");
                 // double totalThread = 1-((double) activeThread / 200);
@@ -112,7 +119,7 @@ public class UserLoadBalance implements LoadBalance {
 
 
                 //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
-               // System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
+                // System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
                 //RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).set(POOL_CORE_COUNT, res);
                 SmoothServer smoothServer = new SmoothServer(host, res, 0);
                 map.put(host, smoothServer);
@@ -144,19 +151,17 @@ public class UserLoadBalance implements LoadBalance {
 //        }
 
 
-       if(time>=1000){
-           System.out.println("time====="+time);
-       }
+
      /*   if (result.hasException()) {
             System.out.println("exception====" + result.getException());
 
         }*/
-            }else{
-                System.out.println("result======"+result.getException());
+            } else {
+                System.out.println("result======" + result.getException());
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             lock.unlock();
         }
 
@@ -202,7 +207,7 @@ public class UserLoadBalance implements LoadBalance {
 
         }*/
         for (int i = 0; i < 10; i++) {
-           // System.out.println("w===="+SmoothWeight.sumWeight());
+            // System.out.println("w===="+SmoothWeight.sumWeight());
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }
 

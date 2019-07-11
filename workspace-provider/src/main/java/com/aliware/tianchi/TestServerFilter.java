@@ -28,14 +28,13 @@ import java.util.concurrent.CompletableFuture;
  */
 @Activate(group = Constants.PROVIDER)
 public class TestServerFilter implements Filter {
-    String $INVOKE = "$invoke";
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
         try {
-
+             RpcContext.getContext().setInvocation(invocation);
             /*Map<String,String> map=invocation.getAttachments();
             System.out.println("aaaaaaaaaa"+map.get("aa"));
 
@@ -60,9 +59,8 @@ public class TestServerFilter implements Filter {
             //      fireInvokeCallback(invoker, invocation);
             //    invocation.setAttachment(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
        //     invocation.getAttachments().put(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
-            Result result = invoker.invoke(invocation);
+            Result result =  invoker.invoke(invocation);
             //   result.setAttachment(START_TIME, String.valueOf(startTime));
-            RpcContext.getContext().getFuture();
   /*          if(result.getException()!=null)
             System.out.println(result.getException().getMessage());*/
             // System.out.println(result.getValue());
@@ -77,6 +75,7 @@ public class TestServerFilter implements Filter {
     public static final String PROVIDER_CORE_COUNT = "active_thread";
     Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
     private static final String ELAPSE_TIME = "elapsed_time";
+    public static final String POOL_CORE_COUNT = "active_thread";
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
@@ -86,7 +85,10 @@ public class TestServerFilter implements Filter {
             result.setAttachment(ELAPSE_TIME, String.valueOf(elapsed));
         }
         String provider_core_count = invocation.getAttachment(PROVIDER_CORE_COUNT);
+        RpcContext.getContext().setAttachment(POOL_CORE_COUNT,String.valueOf(provider_core_count));
+
         if (provider_core_count != null) {
+
             result.setAttachment(PROVIDER_CORE_COUNT, invocation.getAttachment(PROVIDER_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
         }
         // System.out.println("value===="+new Date(result.getValue().toString()).getTime());
@@ -118,28 +120,6 @@ public class TestServerFilter implements Filter {
         return result;
     }
 
-    private ConsumerMethodModel.AsyncMethodInfo getAsyncMethodInfo(Invoker<?> invoker, Invocation invocation) {
-        final ConsumerModel consumerModel = ApplicationModel.getConsumerModel(invoker.getUrl().getServiceKey());
-        if (consumerModel == null) {
-            return null;
-        }
 
-        String methodName = invocation.getMethodName();
-        if (methodName.equals($INVOKE)) {
-            methodName = (String) invocation.getArguments()[0];
-        }
-
-        ConsumerMethodModel methodModel = consumerModel.getMethodModel(methodName);
-        if (methodModel == null) {
-            return null;
-        }
-
-        final ConsumerMethodModel.AsyncMethodInfo asyncMethodInfo = methodModel.getAsyncInfo();
-        if (asyncMethodInfo == null) {
-            return null;
-        }
-
-        return asyncMethodInfo;
-    }
 
 }

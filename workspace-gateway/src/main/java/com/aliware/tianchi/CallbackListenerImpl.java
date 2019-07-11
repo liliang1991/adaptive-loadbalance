@@ -16,10 +16,6 @@ public class CallbackListenerImpl implements CallbackListener {
 
     @Override
     public void receiveServerMsg(String msg) {
-        final AsyncContext asyncContext = RpcContext.startAsync();
-        new Thread(() -> {
-            // 切换线程上下文
-            asyncContext.signalContextSwitch();
-        }).start();
+        System.out.println("receive msg from server :" + msg);
     }
 }

@@ -5,6 +5,7 @@ import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.remoting.exchange.Request;
 import org.apache.dubbo.remoting.transport.RequestLimiter;
 import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.RpcContext;
 
 import java.util.Map;
 

@@ -2,6 +2,8 @@ package com.aliware.tianchi;
 
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.listener.CallbackListener;
 import org.apache.dubbo.rpc.service.CallbackService;
 
@@ -20,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CallbackServiceImpl implements CallbackService {
     Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+    Invocation invocation=RpcContext.getContext().getInvocation();
 
     public CallbackServiceImpl() {
 
@@ -33,16 +36,17 @@ public class CallbackServiceImpl implements CallbackService {
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
                         try {
-
-                            entry.getValue().receiveServerMsg(new Date().toString());
+                            String pool_core_count = invocation.getAttachment(POOL_CORE_COUNT);
+                            System.out.println("pool_core_count==="+pool_core_count);
+                            entry.getValue().receiveServerMsg(pool_core_count);
                         } catch (Throwable t1) {
-                            System.out.println(t1.getMessage()+"exceipnt=====");
+                            System.out.println(t1.getMessage() + "exceipnt=====");
                             listeners.remove(entry.getKey());
                         }
                     }
                 }
             }
-        }, 0, 1000);
+        }, 0, 5000);
 
     }
 
@@ -53,10 +57,18 @@ public class CallbackServiceImpl implements CallbackService {
      * value: callback listener
      */
     private final Map<String, CallbackListener> listeners = new ConcurrentHashMap<>();
+    public static final String POOL_CORE_COUNT = "active_thread";
 
     @Override
     public void addListener(String key, CallbackListener listener) {
-        listeners.put(key, listener);
-        listener.receiveServerMsg(new Date().toString()); // send notification for change
+      try {
+          System.out.println("key======"+key);
+          String pool_core_count = invocation.getAttachment(POOL_CORE_COUNT);
+          listeners.put(key, listener);
+          listener.receiveServerMsg(pool_core_count); // send notification for change
+      }catch (Exception e){
+          e.printStackTrace();
+      }
+
     }
 }

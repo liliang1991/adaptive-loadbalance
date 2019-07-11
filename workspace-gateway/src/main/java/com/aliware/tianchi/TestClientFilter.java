@@ -5,13 +5,13 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.threadpool.ThreadPool;
+import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.*;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -23,33 +23,25 @@ import java.util.concurrent.ExecutorService;
  */
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
-    CompletableFuture<Result> completableFuture = null;
+
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try {
+            RpcContext.getContext()
+                    .setInvoker(invoker)
+                    .setInvocation(invocation)
+                    .setLocalAddress(NetUtils.getLocalHost(), 0)
+                    .setRemoteAddress(invoker.getUrl().getHost(),
+                            invoker.getUrl().getPort());
             long startTime=System.currentTimeMillis();
-           RpcInvocation ivc=  (RpcInvocation) invocation;
-           ivc.setAttachment(START_TIME,String.valueOf(startTime));
-            completableFuture = CompletableFuture.supplyAsync(() ->  {
-               return invoker.invoke(invocation);
-            });
-            Result result= completableFuture.get();
-            onResponse(result,invoker,invocation);
-            //   long startTime= Long.parseLong(invocation.getAttachment(START_TIME));
-            long stopTime = System.currentTimeMillis();
-            long time=stopTime-startTime;
-           /* completableFuture.whenComplete((result, e) ->
-            {
-                onResponse(result,invoker,invocation);
-             //   long startTime= Long.parseLong(invocation.getAttachment(START_TIME));
-                long stopTime = System.currentTimeMillis();
-                long time=stopTime-startTime;
-                //UserLoadBalance.add(result,invoker,invocation,time);
-            });*/
+            RpcInvocation ivc=  (RpcInvocation) invocation;
+            ivc.setAttachment(START_TIME,String.valueOf(startTime));
+            Result result = invoker.invoke(invocation);
 /*            URL url=invocation.getInvoker().getUrl();
             RpcStatus status= RpcStatus.getStatus(url);
             System.out.println(status.getActive());*/
 
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,34 +55,37 @@ public class TestClientFilter implements Filter {
     public static final String WEIGHT = "weight";
     public static final String START_TIME = "start_time";
 
-/*    @Override
+    @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
 
-          *//*  Map<String, String> map = invoker.getUrl().getParameters();
+          /*  Map<String, String> map = invoker.getUrl().getParameters();
             map.put(WEIGHT, "1");
             for (Map.Entry<String, String> entry : map.entrySet()) {
 
                 System.out.println("Key1 = " + entry.getKey() + ", Value1 = " + entry.getValue());
 
-            }*//*
+            }*/
             // System.out.println(result.getAttachment("quota"));
-*//*
-            System.out.println("Available======="+invoker.isAvailable());*//*
-
-*//*
+/*
+            System.out.println("Available======="+invoker.isAvailable());*/
+            long startTime= Long.parseLong(invocation.getAttachment(START_TIME));
+            long stopTime = System.currentTimeMillis();
+            long time=stopTime-startTime;
+            UserLoadBalance.add(result,invoker,invocation,time);
+/*
             if (result.hasException()) {
                 System.out.println("exception===="+result.getException());
-               *//**//* synchronized (invoker) {
+               *//* synchronized (invoker) {
                     //     System.out.println(result.getException());
                     invoker.wait(1000);
-                }*//**//*
+                }*//*
                 //  System.out.println("exception====="+result.getAttachment("quota")+result.getException());
                 return result;
             } else {
                             return result;
 
-            }*//*
+            }*/
             return result;
 
         } catch (Exception e) {
@@ -98,13 +93,13 @@ public class TestClientFilter implements Filter {
         }
         return result;
         //System.out.println("key-------"+result.getAttachment(key));
-     *//*   Map<String, String> map = result.getAttachments();
+     /*   Map<String, String> map = result.getAttachments();
         System.out.println("mapsize========" + map.size());
         for (Map.Entry<String, String> entry : map.entrySet()) {
 
             System.out.println("key=======" + entry.getKey() + "====value======" + entry.getValue());
 
 
-        }*//*
-    }*/
+        }*/
+    }
 }
