@@ -1,14 +1,11 @@
 package com.aliware.tianchi;
-
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.listener.CallbackListener;
 import org.apache.dubbo.rpc.service.CallbackService;
-
-import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +23,7 @@ import com.aliware.tianchi.TestRequestLimiter.ProviderStatus;
 public class CallbackServiceImpl implements CallbackService {
     Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
     Invocation invocation = RpcContext.getContext().getInvocation();
+    public static Gson gson = new Gson();
 
     public CallbackServiceImpl() {
 
@@ -33,9 +31,6 @@ public class CallbackServiceImpl implements CallbackService {
 
             @Override
             public void run() {
-
-      /*          System.out.println("最大线程数===="+map.get("dubbo").getThreads());
-                System.out.println("核心线程数====="+map.get("dubbo").getCorethreads());*/
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
                         try {
@@ -74,8 +69,7 @@ public class CallbackServiceImpl implements CallbackService {
     }
     public String getProvoderStatus(){
         ProviderStatus providerStatus = TestRequestLimiter.providerStatus;
-        String jsonString = JSON.toJSONString(providerStatus);
-
+        String jsonString = gson.toJson(providerStatus);
         return jsonString; // send notification for change
     }
 }
