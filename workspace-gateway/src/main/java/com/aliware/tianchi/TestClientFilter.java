@@ -9,9 +9,11 @@ import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.*;
+import org.apache.dubbo.rpc.support.RpcUtils;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -23,21 +25,23 @@ import java.util.concurrent.ExecutorService;
  */
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
+    CompletableFuture<Result> resultCompletableFuture = null;
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try {
-            RpcContext.getContext()
-                    .setInvoker(invoker)
-                    .setInvocation(invocation)
-                    .setLocalAddress(NetUtils.getLocalHost(), 0)
-                    .setRemoteAddress(invoker.getUrl().getHost(),
-                            invoker.getUrl().getPort());
-            long startTime=System.currentTimeMillis();
-            RpcInvocation ivc=  (RpcInvocation) invocation;
-            ivc.setAttachment(START_TIME,String.valueOf(startTime));
-            AsyncRpcResult result = (AsyncRpcResult)invoker.invoke(invocation);
-            return  result.getRpcResult();
+            boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
+            long startTime = System.currentTimeMillis();
+            RpcInvocation ivc = (RpcInvocation) invocation;
+            ivc.setAttachment(START_TIME, String.valueOf(startTime));
+            Result result = invoker.invoke(invocation);
+            if (isAsync) {
+                AsyncRpcResult asyncRpcResult = (AsyncRpcResult) result;
+                resultCompletableFuture = asyncRpcResult.getResultFuture();
+                return asyncRpcResult.getRpcResult();
+            } else {
+                return result;
+            }
             /*    result.getResultFuture().thenAccept(e -> {
                System.out.println("get result:"+e);
            });*/
@@ -45,7 +49,7 @@ public class TestClientFilter implements Filter {
             RpcStatus status= RpcStatus.getStatus(url);
             System.out.println(status.getActive());*/
 
-       //     return result;
+            //     return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,7 +66,6 @@ public class TestClientFilter implements Filter {
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
-
           /*  Map<String, String> map = invoker.getUrl().getParameters();
             map.put(WEIGHT, "1");
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -73,10 +76,13 @@ public class TestClientFilter implements Filter {
             // System.out.println(result.getAttachment("quota"));
 /*
             System.out.println("Available======="+invoker.isAvailable());*/
-            long startTime= Long.parseLong(invocation.getAttachment(START_TIME));
-            long stopTime = System.currentTimeMillis();
-            long time=stopTime-startTime;
-           // UserLoadBalance.add(result,invoker,invocation,time);
+        /*    if (resultCompletableFuture.isDone()) {
+                long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
+                long stopTime = System.currentTimeMillis();
+                long time = stopTime - startTime;
+                UserLoadBalance.add(result, invoker, invocation, time);
+            }*/
+
 /*
             if (result.hasException()) {
                 System.out.println("exception===="+result.getException());

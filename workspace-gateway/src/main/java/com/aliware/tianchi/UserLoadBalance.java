@@ -54,6 +54,7 @@ public class UserLoadBalance implements LoadBalance {
     }
 
     public static void add(Result result, Invoker<?> invoker, Invocation invocation, long time) {
+
         completableFuture = CompletableFuture.supplyAsync(() ->
         {
             getResult(result, invoker, invocation, time);
@@ -70,12 +71,11 @@ public class UserLoadBalance implements LoadBalance {
         Lock lock = new ReentrantLock();
         try {
             lock.lock();
-            result=(AsyncRpcResult)result.getResult();
+            System.out.println("result======"+result.toString());
             //  ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
             //     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
             //   int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
             String host = invoker.getUrl().getHost();
-            System.out.println(result.toString());
             String params = result.getAttachment(POOL_CORE_COUNT);
       /*      if(time>=950){
                 SmoothServer smoothServer = new SmoothServer(host, 0, 0);
@@ -89,6 +89,7 @@ public class UserLoadBalance implements LoadBalance {
 
                 //            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
                 int providerThread = Integer.parseInt(params.split("\t")[1]);
+                System.out.println("activeTrhead===="+activeThread);
                 DecimalFormat df = new DecimalFormat("######0.00");
                 // double totalThread = 1-((double) activeThread / 200);
                 double threadbl = 1 - ((double) activeThread / providerThread);

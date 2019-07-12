@@ -41,12 +41,18 @@ public class TestRequestLimiter implements RequestLimiter {
           Invocation invocation = (Invocation) request.getData();
 
           invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));
+          if(activeTaskCount>=map.get("dubbo").getThreads()){
+              return false;
+          }
 
           return true;
       }catch (Exception e){
           e.printStackTrace();
       }
         return false;
+    }
+    public void getProvoderStatus(){
+
     }
 
 }
