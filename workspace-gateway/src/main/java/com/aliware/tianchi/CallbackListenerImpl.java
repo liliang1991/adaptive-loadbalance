@@ -1,7 +1,7 @@
 package com.aliware.tianchi;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+
+import com.aliware.tianchi.status.ProviderStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,14 +28,13 @@ public class CallbackListenerImpl implements CallbackListener {
     /*   int active_thread_count=Integer.parseInt(msg.split("\t")[0]);
        int thread_count=Integer.parseInt(msg.split("\t")[1]);
         UserLoadBalance.add(result, invoker, invocation, time);*/
- /*       JsonObject json = new JsonParser().parse(jsonStr).getAsJsonObject();
+        JsonObject json = new JsonParser().parse(jsonStr).getAsJsonObject();
 
+        ProviderStatus providerStatus = gson.fromJson(jsonStr,ProviderStatus.class);
 
-        JsonObject obj= gson.fromJson(jsonStr, JsonObject.class);
-         json.getas
-        int active_thread_count=json.getAsString("activeCount");
-        int thread_count=json.getInteger("threadCount");
-        String host=json.getString("host");
-        UserLoadBalance.add(host,active_thread_count,thread_count);*/
+        int active_thread_count=providerStatus.getActiveCount();
+        int thread_count=providerStatus.getThreadCount();
+        String host=providerStatus.getHost();
+        UserLoadBalance.add(host,active_thread_count,thread_count);
     }
 }

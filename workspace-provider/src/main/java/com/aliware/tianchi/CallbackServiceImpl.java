@@ -1,4 +1,5 @@
 package com.aliware.tianchi;
+import com.aliware.tianchi.status.ProviderStatus;
 import com.google.gson.Gson;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
@@ -10,8 +11,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.aliware.tianchi.TestRequestLimiter.ProviderStatus;
 
 /**
  * @author daofeng.xjf

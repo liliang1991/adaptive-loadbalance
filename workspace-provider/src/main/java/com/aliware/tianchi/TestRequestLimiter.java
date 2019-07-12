@@ -1,5 +1,6 @@
 package com.aliware.tianchi;
 
+import com.aliware.tianchi.status.ProviderStatus;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.remoting.exchange.Request;
@@ -61,35 +62,5 @@ public class TestRequestLimiter implements RequestLimiter {
 
     }
 
-    static class ProviderStatus {
-        private String host;
-        private int activeCount;
-        private int threadCount;
 
-        public String getHost() {
-            return host;
-        }
-
-        public void setHost(String host) {
-            this.host = host;
-        }
-
-        public int getActiveCount() {
-            return activeCount;
-        }
-
-        public void setActiveCount(int activeCount) {
-            this.activeCount = activeCount;
-        }
-
-        public int getThreadCount() {
-            return threadCount;
-        }
-
-        public void setThreadCount(int threadCount) {
-            this.threadCount = threadCount;
-        }
-
-
-    }
 }
