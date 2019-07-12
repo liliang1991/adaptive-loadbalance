@@ -30,7 +30,7 @@ public class UserLoadBalance implements LoadBalance {
     public static final String WEIGHT = "weight";
     // static CompletableFuture<Result> completableFuture=new CompletableFuture<>();
 
-    static CompletableFuture<Result> completableFuture = null;
+    static CompletableFuture completableFuture = null;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
 
 
@@ -39,27 +39,20 @@ public class UserLoadBalance implements LoadBalance {
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
-
         int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
-        //   System.out.println("index===="+index+"\t"+SmoothWeight.sumWeight());
 
         return invokers.get(index);
-   /*     try {
-          //  return invokers.get(ThreadLocalRandom.current().nextInt(invokers.size()));
 
-        }catch (Exception e){
-            return null;
-        }
-*/
     }
 
-    public static void add(Result result, Invoker<?> invoker, Invocation invocation, long time) {
+    public static void add(String host,int active_thread_count,int thread_count) {
 
-        completableFuture = CompletableFuture.supplyAsync(() ->
+        completableFuture = CompletableFuture.runAsync(() ->
         {
-            getResult(result, invoker, invocation, time);
-            return result;
+            getResult(host,active_thread_count,thread_count);
+
         });
+
     }
 
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
@@ -67,31 +60,24 @@ public class UserLoadBalance implements LoadBalance {
     public static final String START_TIME = "start_time";
 
 
-    public static void getResult(Result result, Invoker<?> invoker, Invocation invocation, long time) {
-        Lock lock = new ReentrantLock();
+    public static void getResult(String host,int  activeThread,int providerThread) {
+
         try {
-            lock.lock();
-            System.out.println("result======"+result.toString());
             //  ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
             //     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
             //   int timeout = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
-            String host = invoker.getUrl().getHost();
-            String params = result.getAttachment(POOL_CORE_COUNT);
       /*      if(time>=950){
                 SmoothServer smoothServer = new SmoothServer(host, 0, 0);
                 map.put(host, smoothServer);
                 return;
             }*/
-            if (params != null) {
 
-                int activeThread = Integer.parseInt(params.split("\t")[0]);
 
 
                 //            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
-                int providerThread = Integer.parseInt(params.split("\t")[1]);
-                System.out.println("activeTrhead===="+activeThread);
                 DecimalFormat df = new DecimalFormat("######0.00");
                 // double totalThread = 1-((double) activeThread / 200);
+
                 double threadbl = 1 - ((double) activeThread / providerThread);
                 double w = 0;
                 // int w=1;
@@ -159,13 +145,9 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println("exception====" + result.getException());
 
         }*/
-            } else {
-                System.out.println("result======" + result.getException());
-            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            lock.unlock();
         }
 
     }

@@ -9,7 +9,10 @@ import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.*;
+import org.apache.dubbo.rpc.listener.CallbackListener;
+import org.apache.dubbo.rpc.service.CallbackService;
 import org.apache.dubbo.rpc.support.RpcUtils;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Date;
 import java.util.Map;
@@ -66,6 +69,8 @@ public class TestClientFilter implements Filter {
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
+
+
           /*  Map<String, String> map = invoker.getUrl().getParameters();
             map.put(WEIGHT, "1");
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -76,7 +81,7 @@ public class TestClientFilter implements Filter {
             // System.out.println(result.getAttachment("quota"));
 /*
             System.out.println("Available======="+invoker.isAvailable());*/
-        /*    if (resultCompletableFuture.isDone()) {
+       /*     if (resultCompletableFuture.isDone()) {
                 long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
                 long stopTime = System.currentTimeMillis();
                 long time = stopTime - startTime;

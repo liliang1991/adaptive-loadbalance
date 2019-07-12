@@ -34,7 +34,6 @@ public class TestServerFilter implements Filter {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
         try {
-             RpcContext.getContext().setInvocation(invocation);
             /*Map<String,String> map=invocation.getAttachments();
             System.out.println("aaaaaaaaaa"+map.get("aa"));
 
@@ -80,7 +79,7 @@ public class TestServerFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        String startAttach = invocation.getAttachment(TIMEOUT_FILTER_START_TIME);
+     /*   String startAttach = invocation.getAttachment(TIMEOUT_FILTER_START_TIME);
         if (startAttach != null) {
             long elapsed = System.currentTimeMillis() - Long.valueOf(startAttach);
             result.setAttachment(ELAPSE_TIME, String.valueOf(elapsed));
@@ -91,7 +90,7 @@ public class TestServerFilter implements Filter {
         if (provider_core_count != null) {
 
             result.setAttachment(PROVIDER_CORE_COUNT, invocation.getAttachment(PROVIDER_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
-        }
+        }*/
         // System.out.println("value===="+new Date(result.getValue().toString()).getTime());
         // map.get("dubbo").setDispatcher("message");
         //  System.out.println("path===="+map.get("dubbo").getDispatcher());

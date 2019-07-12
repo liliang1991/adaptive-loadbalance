@@ -1,5 +1,6 @@
 package com.aliware.tianchi;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.Invocation;
@@ -13,6 +14,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.aliware.tianchi.TestRequestLimiter.ProviderStatus;
+
 /**
  * @author daofeng.xjf
  * <p>
@@ -22,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CallbackServiceImpl implements CallbackService {
     Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
-    Invocation invocation=RpcContext.getContext().getInvocation();
+    Invocation invocation = RpcContext.getContext().getInvocation();
 
     public CallbackServiceImpl() {
 
@@ -36,7 +39,7 @@ public class CallbackServiceImpl implements CallbackService {
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
                         try {
-                            entry.getValue().receiveServerMsg("");
+                            entry.getValue().receiveServerMsg(getProvoderStatus());
                         } catch (Throwable t1) {
                             System.out.println(t1.getMessage() + "exceipnt=====");
                             listeners.remove(entry.getKey());
@@ -44,7 +47,7 @@ public class CallbackServiceImpl implements CallbackService {
                     }
                 }
             }
-        }, 0, 5000);
+        }, 0, 0);
 
     }
 
@@ -59,12 +62,20 @@ public class CallbackServiceImpl implements CallbackService {
 
     @Override
     public void addListener(String key, CallbackListener listener) {
-      try {
-          listeners.put(key, listener);
-          listener.receiveServerMsg(""); // send notification for change
-      }catch (Exception e){
-          e.printStackTrace();
-      }
+        try {
+            listeners.put(key, listener);
+            listener.receiveServerMsg(getProvoderStatus());
 
+            getProvoderStatus();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    public String getProvoderStatus(){
+        ProviderStatus providerStatus = TestRequestLimiter.providerStatus;
+        String jsonString = JSON.toJSONString(providerStatus);
+
+        return jsonString; // send notification for change
     }
 }

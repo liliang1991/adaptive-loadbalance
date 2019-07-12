@@ -1,5 +1,7 @@
 package com.aliware.tianchi;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.dubbo.rpc.AsyncContext;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.listener.CallbackListener;
@@ -15,7 +17,15 @@ import org.apache.dubbo.rpc.listener.CallbackListener;
 public class CallbackListenerImpl implements CallbackListener {
 
     @Override
-    public void receiveServerMsg(String msg) {
-     //   System.out.println("receive msg from server :" + msg);
+     public void receiveServerMsg(String jsonStr) {
+    /*   int active_thread_count=Integer.parseInt(msg.split("\t")[0]);
+       int thread_count=Integer.parseInt(msg.split("\t")[1]);
+        UserLoadBalance.add(result, invoker, invocation, time);*/
+        JSONObject json = JSON.parseObject(jsonStr);
+
+        int active_thread_count=json.getInteger("activeCount");
+        int thread_count=json.getInteger("threadCount");
+        String host=json.getString("host");
+        UserLoadBalance.add(host,active_thread_count,thread_count);
     }
 }

@@ -7,7 +7,9 @@ import org.apache.dubbo.remoting.transport.RequestLimiter;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.RpcContext;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author daofeng.xjf
@@ -26,33 +28,68 @@ public class TestRequestLimiter implements RequestLimiter {
      */
     public static final String POOL_CORE_COUNT = "active_thread";
     Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
-    public static final String START_TIME = "start_time";
+    static ProviderStatus providerStatus = new ProviderStatus();
 
     @Override
     public boolean tryAcquire(Request request, int activeTaskCount) {
 
+
         //System.out.println("quata======"+System.getProperty("quota")+activeTaskCount);
-      //  System.out.println("v====="+request.getData());
-      try {
+        //  System.out.println("v====="+request.getData());
+        try {
 /*          if(activeTaskCount>=map.get("dubbo").getThreads()*0.9){
               return false;
           }
           map.get("dubbo").setCorethreads(activeTaskCount);*/
-          Invocation invocation = (Invocation) request.getData();
-
-          invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));
-          if(activeTaskCount>=map.get("dubbo").getThreads()){
+/*          Invocation invocation = (Invocation) request.getData();
+          invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));*/
+            providerStatus.setActiveCount(activeTaskCount);
+            providerStatus.setHost(System.getProperty("quota"));
+            providerStatus.setThreadCount(map.get("dubbo").getThreads());
+      /*    if(activeTaskCount>=map.get("dubbo").getThreads()){
               return false;
-          }
+          }*/
 
-          return true;
-      }catch (Exception e){
-          e.printStackTrace();
-      }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return false;
     }
-    public void getProvoderStatus(){
+
+    public void getProvoderStatus() {
 
     }
 
+    static class ProviderStatus {
+        private String host;
+        private int activeCount;
+        private int threadCount;
+
+        public String getHost() {
+            return host;
+        }
+
+        public void setHost(String host) {
+            this.host = host;
+        }
+
+        public int getActiveCount() {
+            return activeCount;
+        }
+
+        public void setActiveCount(int activeCount) {
+            this.activeCount = activeCount;
+        }
+
+        public int getThreadCount() {
+            return threadCount;
+        }
+
+        public void setThreadCount(int threadCount) {
+            this.threadCount = threadCount;
+        }
+
+
+    }
 }

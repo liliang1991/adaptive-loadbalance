@@ -11,9 +11,9 @@ public class SmoothWeight {
 
     static {
         servers = new LinkedHashMap<>();
-        servers.put("provider-small", new SmoothServer(1, 0));
-        servers.put("provider-medium", new SmoothServer(2, 0));
-        servers.put("provider-large", new SmoothServer(3, 0));
+        servers.put("small", new SmoothServer(1, 0));
+        servers.put("medium", new SmoothServer(2, 0));
+        servers.put("large", new SmoothServer(3, 0));
 
     }
 
@@ -51,9 +51,9 @@ public class SmoothWeight {
 
         }
         int curWeight = tmpSv.getCurWeight() - weightCount;
-        if (curWeight < 0) {
+     /*   if (curWeight < 0) {
             curWeight = 0;
-        }
+        }*/
         tmpSv.setCurWeight(curWeight);
         return num;
 
