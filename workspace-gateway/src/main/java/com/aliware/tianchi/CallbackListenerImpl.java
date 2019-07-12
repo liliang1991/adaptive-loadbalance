@@ -28,7 +28,6 @@ public class CallbackListenerImpl implements CallbackListener {
     /*   int active_thread_count=Integer.parseInt(msg.split("\t")[0]);
        int thread_count=Integer.parseInt(msg.split("\t")[1]);
         UserLoadBalance.add(result, invoker, invocation, time);*/
-        JsonObject json = new JsonParser().parse(jsonStr).getAsJsonObject();
 
         ProviderStatus providerStatus = gson.fromJson(jsonStr,ProviderStatus.class);
 
