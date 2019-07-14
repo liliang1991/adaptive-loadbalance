@@ -20,8 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 用户可以基于此服务，实现服务端向客户端动态推送的功能
  */
 public class CallbackServiceImpl implements CallbackService {
-    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
-    Invocation invocation = RpcContext.getContext().getInvocation();
     public static Gson gson = new Gson();
 
     public CallbackServiceImpl() {
@@ -33,15 +31,16 @@ public class CallbackServiceImpl implements CallbackService {
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
                         try {
-                            entry.getValue().receiveServerMsg(getProvoderStatus());
+                            if(getProvoderStatus()!=null) {
+                                entry.getValue().receiveServerMsg(getProvoderStatus());
+                            }
                         } catch (Throwable t1) {
-                            System.out.println(t1.getMessage() + "exceipnt=====");
                             listeners.remove(entry.getKey());
                         }
                     }
                 }
             }
-        }, 0, 0);
+        }, 0, 10);
 
     }
 
