@@ -6,15 +6,10 @@ import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
-import org.apache.dubbo.common.threadpool.ThreadPool;
-import org.apache.dubbo.common.utils.NetUtils;
-import org.apache.dubbo.config.ProtocolConfig;
-import org.apache.dubbo.config.context.ConfigManager;
+
 import org.apache.dubbo.rpc.*;
-import org.apache.dubbo.rpc.listener.CallbackListener;
-import org.apache.dubbo.rpc.service.CallbackService;
+
 import org.apache.dubbo.rpc.support.RpcUtils;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Date;
 import java.util.Map;

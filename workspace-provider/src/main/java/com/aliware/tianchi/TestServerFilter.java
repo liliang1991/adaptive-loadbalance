@@ -3,6 +3,8 @@ package com.aliware.tianchi;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.*;
@@ -28,8 +30,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Activate(group = Constants.PROVIDER)
 public class TestServerFilter implements Filter {
-    private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
@@ -58,6 +59,7 @@ public class TestServerFilter implements Filter {
             //      fireInvokeCallback(invoker, invocation);
             //    invocation.setAttachment(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
        //     invocation.getAttachments().put(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
+
             Result result =  invoker.invoke(invocation);
             //   result.setAttachment(START_TIME, String.valueOf(startTime));
   /*          if(result.getException()!=null)
@@ -73,7 +75,6 @@ public class TestServerFilter implements Filter {
 
 
     public static final String PROVIDER_CORE_COUNT = "active_thread";
-    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
     private static final String ELAPSE_TIME = "elapsed_time";
     public static final String POOL_CORE_COUNT = "active_thread";
 

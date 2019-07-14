@@ -47,6 +47,7 @@ public class TestRequestLimiter implements RequestLimiter {
             providerStatus.setActiveCount(activeTaskCount);
             providerStatus.setHost(System.getProperty("quota"));
             providerStatus.setThreadCount(map.get("dubbo").getThreads());
+            providerStatus.setStartTime(System.currentTimeMillis());
       /*    if(activeTaskCount>=map.get("dubbo").getThreads()){
               return false;
           }*/

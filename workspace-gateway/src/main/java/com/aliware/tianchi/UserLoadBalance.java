@@ -31,6 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class UserLoadBalance implements LoadBalance {
     public static final String WEIGHT = "weight";
     // static CompletableFuture<Result> completableFuture=new CompletableFuture<>();
+    Map<String,Integer> mapProvider=new HashMap<>();
 
     static CompletableFuture completableFuture = null;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
@@ -42,6 +43,8 @@ public class UserLoadBalance implements LoadBalance {
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
+        String key=invokers.get(index).getUrl().getHost();
+        mapProvider.put(key,mapProvider.getOrDefault(key,0)+1);
 
         return invokers.get(index);
 
@@ -81,7 +84,7 @@ public class UserLoadBalance implements LoadBalance {
             DecimalFormat df = new DecimalFormat("######0.00");
             // double totalThread = 1-((double) activeThread / 200);
 
-            double threadbl = 1 - ((double) activeThread / providerThread);
+            double threadbl = 1 - (activeThread / providerThread);
             double w = 0;
             // int w=1;
     /*   if(invoker.getUrl().getHost().equals("provider-small")){
@@ -165,31 +168,6 @@ public class UserLoadBalance implements LoadBalance {
         return false;
     }
 
-    public static void updateWeight(Map<String, SmoothServer> map, String host, long time, long timeout) {
-        if (time < timeout) {
-            if (time < 400) {
-                SmoothServer smoothServer = new SmoothServer(host, 3, 0);
-                map.put(host, smoothServer);
-
-
-            } else if (time < 700 && time >= 400) {
-                SmoothServer smoothServer = new SmoothServer(host, 2, 0);
-                map.put(host, smoothServer);
-
-            } else if (time < 900) {
-                SmoothServer smoothServer = new SmoothServer(host, 1, 0);
-                map.put(host, smoothServer);
-
-            } else {
-                SmoothServer smoothServer = new SmoothServer(host, 0, 0);
-                map.put(host, smoothServer);
-            }
-        } else {
-            SmoothServer smoothServer = new SmoothServer(host, 0, 0);
-            map.put(host, smoothServer);
-        }
-
-    }
 
     public static void main(String[] args) {
 
