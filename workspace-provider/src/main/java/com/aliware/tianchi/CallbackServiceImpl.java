@@ -40,7 +40,7 @@ public class CallbackServiceImpl implements CallbackService {
                     }
                 }
             }
-        }, 0, 10);
+        }, 0, 0);
 
     }
 
@@ -51,7 +51,6 @@ public class CallbackServiceImpl implements CallbackService {
      * value: callback listener
      */
     private final Map<String, CallbackListener> listeners = new ConcurrentHashMap<>();
-    public static final String POOL_CORE_COUNT = "active_thread";
 
     @Override
     public void addListener(String key, CallbackListener listener) {
