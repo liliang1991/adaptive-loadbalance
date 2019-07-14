@@ -4,6 +4,8 @@ import com.aliware.tianchi.smooth.SmoothServer;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.ExtensionLoader;
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.threadpool.ThreadPool;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
@@ -32,7 +34,7 @@ public class UserLoadBalance implements LoadBalance {
 
     static CompletableFuture completableFuture = null;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String POOL_CORE_COUNT = "active_thread";
 
@@ -45,13 +47,15 @@ public class UserLoadBalance implements LoadBalance {
 
     }
 
-    public static void add(String host,int active_thread_count,int thread_count) {
+    public static void add(String host, int active_thread_count, int thread_count) {
 
         completableFuture = CompletableFuture.runAsync(() ->
         {
-            getResult(host,active_thread_count,thread_count);
+            //this.sleep(3000);
+            getResult(host, active_thread_count, thread_count);
 
         });
+
 
     }
 
@@ -60,7 +64,7 @@ public class UserLoadBalance implements LoadBalance {
     public static final String START_TIME = "start_time";
 
 
-    public static void getResult(String host,int  activeThread,int providerThread) {
+    public static void getResult(String host, int activeThread, int providerThread) {
 
         try {
             //  ExecutorService executor = (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(invoker.getUrl());
@@ -73,14 +77,13 @@ public class UserLoadBalance implements LoadBalance {
             }*/
 
 
+            //            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
+            DecimalFormat df = new DecimalFormat("######0.00");
+            // double totalThread = 1-((double) activeThread / 200);
 
-                //            int thread = ((ThreadPoolExecutor) executor).getCorePoolSize();
-                DecimalFormat df = new DecimalFormat("######0.00");
-                // double totalThread = 1-((double) activeThread / 200);
-
-                double threadbl = 1 - ((double) activeThread / providerThread);
-                double w = 0;
-                // int w=1;
+            double threadbl = 1 - ((double) activeThread / providerThread);
+            double w = 0;
+            // int w=1;
     /*   if(invoker.getUrl().getHost().equals("provider-small")){
            w=1;
        }else if(invoker.getUrl().getHost().equals("provider-medium")){
@@ -99,19 +102,24 @@ public class UserLoadBalance implements LoadBalance {
                         }
                     }
                 }*/
-                //   w += Double.parseDouble(df.format(((totalThread))));
-                w += Double.parseDouble(df.format(((threadbl))));
+            //   w += Double.parseDouble(df.format(((totalThread))));
+            w += Double.parseDouble(df.format(((threadbl))));
            /*   if(w>0.2) {
                   w += Double.parseDouble(df.format(1 - (time / 1000)));
               }*/
-                int res = new Double(w * 100).intValue();
+            int res = new Double(w * 100).intValue();
 
 
-                //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
-                // System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
-                //RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).set(POOL_CORE_COUNT, res);
-                SmoothServer smoothServer = new SmoothServer(host, res, 0);
-                map.put(host, smoothServer);
+            //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
+            // System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
+            //RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).set(POOL_CORE_COUNT, res);
+            SmoothServer smoothServer = new SmoothServer(host, res, 0);
+            map.put(host, smoothServer);
+
+         /*   for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
+                System.out.println("weight===" + activeThread + "\t" + providerThread + "\t" + entry.getKey() + "\t" + entry.getValue().toString());
+
+            }*/
             /*    int sumWeight=SmoothWeight.sumWeight();
                 smoothServer.setCurWeight(smoothServer.getCurWeight()-sumWeight);
                 map.put(host, smoothServer);*/

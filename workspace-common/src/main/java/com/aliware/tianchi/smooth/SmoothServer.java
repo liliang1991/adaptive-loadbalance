@@ -41,4 +41,9 @@ public class SmoothServer {
     public void setCurWeight(int curWeight) {
         this.curWeight = curWeight;
     }
+
+    @Override
+    public String toString() {
+        return  "{service: ip==}"+ip+", weight==="+weight+", curweight==="+curWeight;
+    }
 }

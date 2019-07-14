@@ -4,6 +4,8 @@ import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.common.extension.ExtensionLoader;
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.threadpool.ThreadPool;
 import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.config.ProtocolConfig;
@@ -29,6 +31,7 @@ import java.util.concurrent.ExecutorService;
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
     CompletableFuture<Result> resultCompletableFuture = null;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -37,14 +40,14 @@ public class TestClientFilter implements Filter {
             long startTime = System.currentTimeMillis();
             RpcInvocation ivc = (RpcInvocation) invocation;
             ivc.setAttachment(START_TIME, String.valueOf(startTime));
-            Result result = invoker.invoke(invocation);
             if (isAsync) {
-                AsyncRpcResult asyncRpcResult = (AsyncRpcResult) result;
+                AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
                 resultCompletableFuture = asyncRpcResult.getResultFuture();
                 return asyncRpcResult.getRpcResult();
             } else {
-                return result;
+                return invoker.invoke(invocation);
             }
+
             /*    result.getResultFuture().thenAccept(e -> {
                System.out.println("get result:"+e);
            });*/
@@ -70,6 +73,10 @@ public class TestClientFilter implements Filter {
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
 
+/*            long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
+            long stopTime = System.currentTimeMillis();
+            long time = stopTime - startTime;
+            logger.info("机器响应时间为，"+time);*/
 
           /*  Map<String, String> map = invoker.getUrl().getParameters();
             map.put(WEIGHT, "1");

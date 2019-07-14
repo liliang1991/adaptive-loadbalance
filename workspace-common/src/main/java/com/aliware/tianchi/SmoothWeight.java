@@ -12,8 +12,8 @@ public class SmoothWeight {
     static {
         servers = new LinkedHashMap<>();
         servers.put("small", new SmoothServer(1, 0));
-        servers.put("medium", new SmoothServer(2, 0));
-        servers.put("large", new SmoothServer(3, 0));
+        servers.put("medium", new SmoothServer(4, 0));
+        servers.put("large", new SmoothServer(5, 0));
 
     }
 
