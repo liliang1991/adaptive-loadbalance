@@ -4,6 +4,7 @@ public class ProviderStatus {
     private String host;
     private int activeCount;
     private int threadCount;
+    private long startTime;
 
     public String getHost() {
         return host;
@@ -27,5 +28,13 @@ public class ProviderStatus {
 
     public void setThreadCount(int threadCount) {
         this.threadCount = threadCount;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 }
