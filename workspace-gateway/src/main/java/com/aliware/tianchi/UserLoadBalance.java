@@ -31,10 +31,10 @@ import java.util.concurrent.locks.ReentrantLock;
 public class UserLoadBalance implements LoadBalance {
     public static final String WEIGHT = "weight";
     Map<String, Integer> mapProvider = new HashMap<>();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     static CompletableFuture completableFuture = null;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String POOL_CORE_COUNT = "active_thread";
 
@@ -83,7 +83,7 @@ public class UserLoadBalance implements LoadBalance {
             DecimalFormat df = new DecimalFormat("######0.00");
             // double totalThread = 1-((double) activeThread / 200);
 
-            double threadbl = 1 - (activeThread / providerThread);
+            double threadbl = 1 - ((double)activeThread / (double) providerThread);
             double w = 0;
             // int w=1;
     /*   if(invoker.getUrl().getHost().equals("provider-small")){
@@ -110,8 +110,6 @@ public class UserLoadBalance implements LoadBalance {
                   w += Double.parseDouble(df.format(1 - (time / 1000)));
               }*/
             int res = new Double(w * 100).intValue();
-
-
             //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
             // System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
             //RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).set(POOL_CORE_COUNT, res);

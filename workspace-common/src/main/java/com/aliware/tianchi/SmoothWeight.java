@@ -56,7 +56,6 @@ public class SmoothWeight {
             curWeight = 0;
         }*/
         tmpSv.setCurWeight(curWeight);
-        System.out.println(tmpSv.toString());
         return num;
 
     }

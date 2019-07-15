@@ -38,7 +38,6 @@ public class CallbackListenerImpl implements CallbackListener {
         int active_thread_count=providerStatus.getActiveCount();
         int thread_count=providerStatus.getThreadCount();
         String host=providerStatus.getHost();
-
    /*     long startTime=providerStatus.getStartTime();
         long stopTime=System.currentTimeMillis();
 
