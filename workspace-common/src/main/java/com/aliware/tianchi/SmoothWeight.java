@@ -17,7 +17,7 @@ public class SmoothWeight {
 
     }
 
-    public synchronized static int getServer(int weightCount) {
+    public  static int getServer(int weightCount) {
 /*
         int num = 0;
         SmoothServer tmpSv = null;

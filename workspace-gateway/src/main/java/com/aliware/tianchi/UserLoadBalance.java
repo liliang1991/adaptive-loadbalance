@@ -61,7 +61,7 @@ public class UserLoadBalance implements LoadBalance {
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
     public static final String START_TIME = "start_time";
 
-    public synchronized static void getResult(ProviderStatus providerStatus) {
+    public  static void getResult(ProviderStatus providerStatus) {
         try {
         /*    double threadbl = 1 - ((double) activeThread / (double) providerThread);
             double w = 0;
