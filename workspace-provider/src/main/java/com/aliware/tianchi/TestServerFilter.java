@@ -76,6 +76,10 @@ public class TestServerFilter implements Filter {
   /*          if(result.getException()!=null)
             System.out.println(result.getException().getMessage());*/
             // System.out.println(result.getValue());
+
+      /*      long startTime = System.currentTimeMillis();
+            RpcInvocation ivc = (RpcInvocation) invocation;
+            ivc.setAttachment(START_TIME, String.valueOf(startTime));*/
             return invoker.invoke(invocation);
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,6 +88,7 @@ public class TestServerFilter implements Filter {
         return null;
     }
 
+    public static final String START_TIME = "start_time";
 
     public static final String PROVIDER_CORE_COUNT = "active_thread";
     private static final String ELAPSE_TIME = "elapsed_time";
@@ -111,6 +116,14 @@ public class TestServerFilter implements Filter {
         /*    int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
             if(coreCount>=map.get("dubbo").getThreads()){
                 System.out.println(">>>>>");
+            }*/
+
+        /*    long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
+            long stopTime = System.currentTimeMillis();
+            long time = stopTime - startTime;
+            System.out.println("time===="+time);
+            if(time>=1000) {
+                logger.info("机器响应时间为，" + time);
             }*/
         } catch (Exception e) {
             e.printStackTrace();

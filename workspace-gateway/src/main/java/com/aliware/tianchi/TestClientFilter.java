@@ -32,12 +32,12 @@ public class TestClientFilter implements Filter {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try {
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
-            long startTime = System.currentTimeMillis();
+      /*      long startTime = System.currentTimeMillis();
             RpcInvocation ivc = (RpcInvocation) invocation;
-            ivc.setAttachment(START_TIME, String.valueOf(startTime));
+            ivc.setAttachment(START_TIME, String.valueOf(startTime));*/
             if (isAsync) {
                 AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
-                resultCompletableFuture = asyncRpcResult.getResultFuture();
+               // resultCompletableFuture = asyncRpcResult.getResultFuture();
                 return asyncRpcResult.getRpcResult();
             } else {
                 return invoker.invoke(invocation);
@@ -69,11 +69,12 @@ public class TestClientFilter implements Filter {
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
 
-/*            long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
+        /*    long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
             long stopTime = System.currentTimeMillis();
             long time = stopTime - startTime;
-            logger.info("机器响应时间为，"+time);*/
-
+            if(time>=1000) {
+                logger.info("机器响应时间为，" + time);
+            }*/
           /*  Map<String, String> map = invoker.getUrl().getParameters();
             map.put(WEIGHT, "1");
             for (Map.Entry<String, String> entry : map.entrySet()) {
