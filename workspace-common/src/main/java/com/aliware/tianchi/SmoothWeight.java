@@ -51,10 +51,12 @@ public class SmoothWeight {
 
         }
         int curWeight = tmpSv.getCurWeight() - weightCount;
+
      /*   if (curWeight < 0) {
             curWeight = 0;
         }*/
         tmpSv.setCurWeight(curWeight);
+        System.out.println(tmpSv.toString());
         return num;
 
     }

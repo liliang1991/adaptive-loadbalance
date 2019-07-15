@@ -46,4 +46,5 @@ public class SmoothServer {
     public String toString() {
         return  "{service: ip==}"+ip+", weight==="+weight+", curweight==="+curWeight;
     }
+
 }

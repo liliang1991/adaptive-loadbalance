@@ -30,8 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class UserLoadBalance implements LoadBalance {
     public static final String WEIGHT = "weight";
-    // static CompletableFuture<Result> completableFuture=new CompletableFuture<>();
-    Map<String,Integer> mapProvider=new HashMap<>();
+    Map<String, Integer> mapProvider = new HashMap<>();
 
     static CompletableFuture completableFuture = null;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
@@ -43,8 +42,8 @@ public class UserLoadBalance implements LoadBalance {
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
-        String key=invokers.get(index).getUrl().getHost();
-        mapProvider.put(key,mapProvider.getOrDefault(key,0)+1);
+        String key = invokers.get(index).getUrl().getHost();
+        mapProvider.put(key, mapProvider.getOrDefault(key, 0) + 1);
 
         return invokers.get(index);
 
@@ -116,7 +115,7 @@ public class UserLoadBalance implements LoadBalance {
             //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
             // System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
             //RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).set(POOL_CORE_COUNT, res);
-            SmoothServer smoothServer = new SmoothServer(host, res, 0);
+            SmoothServer smoothServer = new SmoothServer(res, res-SmoothWeight.sumWeight());
             map.put(host, smoothServer);
 
          /*   for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
@@ -177,8 +176,13 @@ public class UserLoadBalance implements LoadBalance {
             System.out.println(smoothServer.getWeight());
 
         }*/
-        for (int i = 0; i < 10; i++) {
+        String host = "small";
+        for (int i = 0; i < 5; i++) {
             // System.out.println("w===="+SmoothWeight.sumWeight());
+        /*    if (i == 10) {
+                SmoothServer smoothServer = new SmoothServer(host, 5, 0);
+                map.put(host, smoothServer);
+            }*/
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }
 
