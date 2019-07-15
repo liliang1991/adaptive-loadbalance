@@ -24,7 +24,7 @@ public class CallbackServiceImpl implements CallbackService {
 
     public CallbackServiceImpl() {
 
-        timer.schedule(new TimerTask() {
+        timer.scheduleAtFixedRate(new TimerTask() {
 
             @Override
             public void run() {
