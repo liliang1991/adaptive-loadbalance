@@ -7,7 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SmoothWeight {
     // static List<SmoothServer> servers = new CopyOnWriteArrayList<SmoothServer>(Arrays.asList(new SmoothServer("provider-small", 1, 0), new SmoothServer("provider-medium", 2, 0), new SmoothServer("provider-large", 3, 0)));
-    static Map<String, SmoothServer> servers = null;
+    static  Map<String, SmoothServer> servers = null;
 
     static {
         servers = new LinkedHashMap<>();
@@ -17,7 +17,7 @@ public class SmoothWeight {
 
     }
 
-    public static int getServer(int weightCount) {
+    public synchronized static int getServer(int weightCount) {
 /*
         int num = 0;
         SmoothServer tmpSv = null;
