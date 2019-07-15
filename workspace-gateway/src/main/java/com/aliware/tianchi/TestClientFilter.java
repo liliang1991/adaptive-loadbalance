@@ -42,6 +42,7 @@ public class TestClientFilter implements Filter {
             } else {
                 return invoker.invoke(invocation);
             }
+       //     return invoker.invoke(invocation);
 
             /*    result.getResultFuture().thenAccept(e -> {
                System.out.println("get result:"+e);

@@ -37,16 +37,12 @@ public class CallbackListenerImpl implements CallbackListener {
         {
             //this.sleep(3000);
             ProviderStatus providerStatus = gson.fromJson(jsonStr, ProviderStatus.class);
-
-            int active_thread_count = providerStatus.getActiveCount();
-            int thread_count = providerStatus.getThreadCount();
-            String host = providerStatus.getHost();
    /*     long startTime=providerStatus.getStartTime();
         long stopTime=System.currentTimeMillis();
 
         logger.info("provider 状态调用时间为"+(stopTime-startTime)+"\t"+active_thread_count+"\t"+host);*/
 
-            UserLoadBalance.add(host, active_thread_count, thread_count);
+            UserLoadBalance.add(providerStatus);
 
         });
 

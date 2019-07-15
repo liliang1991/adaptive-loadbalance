@@ -1,8 +1,10 @@
 package com.aliware.tianchi;
 
 import com.aliware.tianchi.smooth.SmoothServer;
+import com.aliware.tianchi.status.ProviderStatus;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.URLBuilder;
 import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
@@ -39,11 +41,12 @@ public class UserLoadBalance implements LoadBalance {
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
-        String key = invokers.get(index).getUrl().getHost();
-        return invokers.get(index);
+        Invoker invoker = invokers.get(index);
+        url.addParameter(POOL_CORE_COUNT, "10");
+        return invoker;
     }
 
-    public static void add(String host, int active_thread_count, int thread_count) {
+    public static void add(ProviderStatus providerStatus) {
 
      /*   completableFuture = CompletableFuture.runAsync(() ->
         {
@@ -51,21 +54,39 @@ public class UserLoadBalance implements LoadBalance {
 
         });*/
 
-        getResult(host, active_thread_count, thread_count);
+        getResult(providerStatus);
 
     }
 
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
     public static final String START_TIME = "start_time";
 
-    public synchronized static void getResult(String host, int activeThread, int providerThread) {
+    public synchronized static void getResult(ProviderStatus providerStatus) {
         try {
-            double threadbl = 1 - ((double) activeThread / (double) providerThread);
+        /*    double threadbl = 1 - ((double) activeThread / (double) providerThread);
             double w = 0;
             w = Double.parseDouble(df.format(((threadbl))));
             int res = new Double(w * 100).intValue();
-            SmoothServer smoothServer = new SmoothServer(res, 0);
-            map.put(host, smoothServer);
+                SmoothServer smoothServer = new SmoothServer(res, 0);
+            map.put(host, smoothServer);*/
+            if (1 == providerStatus.getEnabled()) {
+                SmoothServer smoothServer = null;
+                if ("small".equals(providerStatus.getHost())) {
+                    smoothServer = new SmoothServer(1, 0);
+
+                } else if ("medium".equals(providerStatus.getHost())) {
+                    smoothServer = new SmoothServer(2, 0);
+
+                } else {
+                    smoothServer = new SmoothServer(3, 0);
+                }
+                map.put(providerStatus.getHost(), smoothServer);
+
+            } else {
+                SmoothServer smoothServer = new SmoothServer(0, 0);
+                map.put(providerStatus.getHost(), smoothServer);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

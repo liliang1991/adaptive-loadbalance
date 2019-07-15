@@ -31,6 +31,9 @@ import java.util.concurrent.CompletableFuture;
 @Activate(group = Constants.PROVIDER)
 public class TestServerFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+
+
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
@@ -58,17 +61,25 @@ public class TestServerFilter implements Filter {
             System.out.println("核心线程池为======"+map.get("dubbo").getCorethreads());*/
             //      fireInvokeCallback(invoker, invocation);
             //    invocation.setAttachment(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
-       //     invocation.getAttachments().put(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
+            //     invocation.getAttachments().put(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
+     /*       URL url = invoker.getUrl();
 
-            Result result =  invoker.invoke(invocation);
+            String methodName = invocation.getMethodName();
+            int maxThread = map.get("dubbo").getThreads();
+            System.out.println("====="+url.getMethodParameter(methodName,POOL_CORE_COUNT));*/
+      /*      if (!RpcStatus.beginCount(url, methodName, maxThread)) {
+                throw new RpcException("Failed to invoke method " + invocation.getMethodName() + " in provider " +
+                        url + ", cause: The service using threads greater than <dubbo:service executes=\"" + maxThread +
+                        "\" /> limited.");
+            }*/
             //   result.setAttachment(START_TIME, String.valueOf(startTime));
   /*          if(result.getException()!=null)
             System.out.println(result.getException().getMessage());*/
             // System.out.println(result.getValue());
-            return result;
+            return invoker.invoke(invocation);
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
         }
         return null;
     }
@@ -120,7 +131,6 @@ public class TestServerFilter implements Filter {
         //   Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
         return result;
     }
-
 
 
 }

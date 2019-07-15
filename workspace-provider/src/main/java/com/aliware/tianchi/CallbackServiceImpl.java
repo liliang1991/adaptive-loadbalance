@@ -40,7 +40,7 @@ public class CallbackServiceImpl implements CallbackService {
                     }
                 }
             }
-        }, 0, 1);
+        }, 0, 100);
 
     }
 
@@ -66,7 +66,13 @@ public class CallbackServiceImpl implements CallbackService {
     }
     public String getProvoderStatus(){
         ProviderStatus providerStatus = TestRequestLimiter.providerStatus;
+        if(providerStatus.getActiveCount()>=providerStatus.getThreadCount()*0.8){
+            providerStatus.setEnabled(0);
+        }else {
+            providerStatus.setEnabled(1);
+        }
         String jsonString = gson.toJson(providerStatus);
+
         return jsonString; // send notification for change
     }
 }
