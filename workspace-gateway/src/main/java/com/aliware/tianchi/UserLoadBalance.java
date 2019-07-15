@@ -113,7 +113,7 @@ public class UserLoadBalance implements LoadBalance {
             //  double  threadRes= Double.parseDouble(df.format(((1-threadbl))));
             // System.out.println("res======" + res + "\t" + host + "\t" + activeThread + "\t" + providerThread + "\t" + time);
             //RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).set(POOL_CORE_COUNT, res);
-            SmoothServer smoothServer = new SmoothServer(res, res-SmoothWeight.sumWeight());
+            SmoothServer smoothServer = new SmoothServer(res, 0);
             map.put(host, smoothServer);
 
          /*   for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
