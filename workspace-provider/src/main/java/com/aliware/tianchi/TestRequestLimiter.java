@@ -44,6 +44,9 @@ public class TestRequestLimiter implements RequestLimiter {
           map.get("dubbo").setCorethreads(activeTaskCount);*/
 /*          Invocation invocation = (Invocation) request.getData();
           invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));*/
+            if(activeTaskCount>=map.get("dubbo").getThreads()){
+                return false;
+            }
             providerStatus.setActiveCount(activeTaskCount);
             providerStatus.setHost(System.getProperty("quota"));
             providerStatus.setThreadCount(map.get("dubbo").getThreads());

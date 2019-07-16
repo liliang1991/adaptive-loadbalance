@@ -42,7 +42,7 @@ public class CallbackListenerImpl implements CallbackListener {
 
         logger.info("provider 状态调用时间为"+(stopTime-startTime)+"\t"+active_thread_count+"\t"+host);*/
 
-            UserLoadBalance.add(providerStatus);
+        //    UserLoadBalance.add(providerStatus);
 
         });
 
