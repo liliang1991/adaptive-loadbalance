@@ -12,8 +12,10 @@ import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.support.RpcUtils;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -27,38 +29,29 @@ import java.util.concurrent.ExecutorService;
 public class TestClientFilter implements Filter {
     CompletableFuture<Result> resultCompletableFuture = null;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+     Map<String,Integer> map=new HashMap<>();
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try {
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
-      /*      long startTime = System.currentTimeMillis();
-            RpcInvocation ivc = (RpcInvocation) invocation;
-            ivc.setAttachment(START_TIME, String.valueOf(startTime));*/
             if (isAsync) {
                 AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
-               // resultCompletableFuture = asyncRpcResult.getResultFuture();
+                asyncRpcResult.thenApplyWithContext(r -> doPostProcess(r, invoker, invocation));
+                resultCompletableFuture = asyncRpcResult.getResultFuture();
                 return asyncRpcResult.getRpcResult();
             } else {
                 return invoker.invoke(invocation);
             }
-       //     return invoker.invoke(invocation);
-
-            /*    result.getResultFuture().thenAccept(e -> {
-               System.out.println("get result:"+e);
-           });*/
-/*            URL url=invocation.getInvoker().getUrl();
-            RpcStatus status= RpcStatus.getStatus(url);
-            System.out.println(status.getActive());*/
-
-            //     return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
 
     }
-
+   public  Result doPostProcess(Result result,Invoker<?> invoker, Invocation invocation){
+        UserLoadBalance.addCallBack(result,invoker,invocation);
+   return result;
+   }
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
 
     public static final String POOL_CORE_COUNT = "active_thread";
@@ -68,57 +61,11 @@ public class TestClientFilter implements Filter {
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
-
-        /*    long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
-            long stopTime = System.currentTimeMillis();
-            long time = stopTime - startTime;
-            if(time>=1000) {
-                logger.info("机器响应时间为，" + time);
-            }*/
-          /*  Map<String, String> map = invoker.getUrl().getParameters();
-            map.put(WEIGHT, "1");
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-
-                System.out.println("Key1 = " + entry.getKey() + ", Value1 = " + entry.getValue());
-
-            }*/
-            // System.out.println(result.getAttachment("quota"));
-/*
-            System.out.println("Available======="+invoker.isAvailable());*/
-       /*     if (resultCompletableFuture.isDone()) {
-                long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
-                long stopTime = System.currentTimeMillis();
-                long time = stopTime - startTime;
-                UserLoadBalance.add(result, invoker, invocation, time);
-            }*/
-
-/*
-            if (result.hasException()) {
-                System.out.println("exception===="+result.getException());
-               *//* synchronized (invoker) {
-                    //     System.out.println(result.getException());
-                    invoker.wait(1000);
-                }*//*
-                //  System.out.println("exception====="+result.getAttachment("quota")+result.getException());
-                return result;
-            } else {
-                            return result;
-
-            }*/
             return result;
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
-        //System.out.println("key-------"+result.getAttachment(key));
-     /*   Map<String, String> map = result.getAttachments();
-        System.out.println("mapsize========" + map.size());
-        for (Map.Entry<String, String> entry : map.entrySet()) {
 
-            System.out.println("key=======" + entry.getKey() + "====value======" + entry.getValue());
-
-
-        }*/
     }
 }

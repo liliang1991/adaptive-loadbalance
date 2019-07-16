@@ -32,36 +32,49 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class UserLoadBalance implements LoadBalance {
     public static final String WEIGHT = "weight";
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(UserLoadBalance.class);
     static CompletableFuture completableFuture = null;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
-    public static final String POOL_CORE_COUNT = "active_thread";
+    public static final String PROVIDER_CORE_COUNT = "provider_thread";
     static DecimalFormat df = new DecimalFormat("######0.00");
 
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
-        int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
-        Invoker invoker = invokers.get(index);
-        url.addParameter(POOL_CORE_COUNT, "10");
-        return invoker;
+        try {
+            int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
+            Invoker invoker = invokers.get(index);
+            return invoker;
+
+        }catch (Exception e){
+            e.printStackTrace();
+
+        }
+       return null;
     }
 
     public static void add(ProviderStatus providerStatus) {
 
-     /*   completableFuture = CompletableFuture.runAsync(() ->
+        completableFuture = CompletableFuture.runAsync(() ->
         {
-            //this.sleep(3000);
+            getResult(providerStatus);
+        });
 
-        });*/
 
-        getResult(providerStatus);
+    }
+
+    public static void addCallBack(Result result, Invoker<?> invoker, Invocation invocation) {
+            try {
+                callBack(result, invoker, invocation);
+            }catch (Exception e) {
+             e.printStackTrace();
+            }
 
     }
 
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
     public static final String START_TIME = "start_time";
 
-    public  static void getResult(ProviderStatus providerStatus) {
+    public static void getResult(ProviderStatus providerStatus) {
         try {
         /*    double threadbl = 1 - ((double) activeThread / (double) providerThread);
             double w = 0;
@@ -93,6 +106,23 @@ public class UserLoadBalance implements LoadBalance {
         }
 
     }
+
+    public static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
+
+            String params = result.getAttachment(PROVIDER_CORE_COUNT);
+        if(params!=null) {
+            int activeThread = Integer.parseInt(params.split("\t")[0]);
+            int providerThread = Integer.parseInt(params.split("\t")[1]);
+            String host = invoker.getUrl().getHost();
+            double threadbl = 1 - ((double) activeThread / (double) providerThread);
+            double w = 0;
+            w = Double.parseDouble(df.format(((threadbl))));
+            int res = new Double(w * 100).intValue();
+            SmoothServer smoothServer = new SmoothServer(res, 0);
+            map.put(host, smoothServer);
+        }
+        }
+
 
     public static boolean updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
 
