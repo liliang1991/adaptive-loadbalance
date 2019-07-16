@@ -38,48 +38,6 @@ public class TestServerFilter implements Filter {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
         try {
-            /*Map<String,String> map=invocation.getAttachments();
-            System.out.println("aaaaaaaaaa"+map.get("aa"));
-
-            System.out.println(Cf.completableFuture+"==");
-            CompletableFuture<Invoker> completableFuture = Cf.completableFuture.thenCompose(i -> {
-                return CompletableFuture.supplyAsync(() -> {
-                    SmoothWeight.getServer(6);
-                    return i;
-                });
-            });
-            completableFuture= completableFuture.whenComplete((res, e) ->
-            {
-            });
-
-            invoker = completableFuture.get();*/
-
-      /*      Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
-            System.out.println("最大可接受连接数======"+map.get("dubbo").getAccepts());
-            System.out.println("最大线程数======"+map.get("dubbo").getThreads());
-            System.out.println("线程池类型为======"+map.get("dubbo").getThreadpool());
-            System.out.println("核心线程池为======"+map.get("dubbo").getCorethreads());*/
-            //      fireInvokeCallback(invoker, invocation);
-            //    invocation.setAttachment(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
-            //     invocation.getAttachments().put(TIMEOUT_FILTER_START_TIME, String.valueOf(System.currentTimeMillis()));
-     /*       URL url = invoker.getUrl();
-
-            String methodName = invocation.getMethodName();
-            int maxThread = map.get("dubbo").getThreads();
-            System.out.println("====="+url.getMethodParameter(methodName,POOL_CORE_COUNT));*/
-      /*      if (!RpcStatus.beginCount(url, methodName, maxThread)) {
-                throw new RpcException("Failed to invoke method " + invocation.getMethodName() + " in provider " +
-                        url + ", cause: The service using threads greater than <dubbo:service executes=\"" + maxThread +
-                        "\" /> limited.");
-            }*/
-            //   result.setAttachment(START_TIME, String.valueOf(startTime));
-  /*          if(result.getException()!=null)
-            System.out.println(result.getException().getMessage());*/
-            // System.out.println(result.getValue());
-
-      /*      long startTime = System.currentTimeMillis();
-            RpcInvocation ivc = (RpcInvocation) invocation;
-            ivc.setAttachment(START_TIME, String.valueOf(startTime));*/
             return invoker.invoke(invocation);
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,56 +54,15 @@ public class TestServerFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        String provider_core_count = invocation.getAttachment(PROVIDER_CORE_COUNT);
-        if (provider_core_count != null) {
-            result.setAttachment(PROVIDER_CORE_COUNT, invocation.getAttachment(PROVIDER_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
-        }
-     /*   String startAttach = invocation.getAttachment(TIMEOUT_FILTER_START_TIME);
-        if (startAttach != null) {
-            long elapsed = System.currentTimeMillis() - Long.valueOf(startAttach);
-            result.setAttachment(ELAPSE_TIME, String.valueOf(elapsed));
-        }
-        String provider_core_count = invocation.getAttachment(PROVIDER_CORE_COUNT);
-        RpcContext.getContext().setAttachment(POOL_CORE_COUNT,String.valueOf(provider_core_count));
-
-        if (provider_core_count != null) {
-
-            result.setAttachment(PROVIDER_CORE_COUNT, invocation.getAttachment(PROVIDER_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
-        }*/
-        // System.out.println("value===="+new Date(result.getValue().toString()).getTime());
-        // map.get("dubbo").setDispatcher("message");
-        //  System.out.println("path===="+map.get("dubbo").getDispatcher());
         try {
-
-        /*    int coreCount=Integer.parseInt( invocation.getAttachment(POOL_CORE_COUNT));
-            if(coreCount>=map.get("dubbo").getThreads()){
-                System.out.println(">>>>>");
-            }*/
-
-        /*    long startTime = Long.parseLong(invocation.getAttachment(START_TIME));
-            long stopTime = System.currentTimeMillis();
-            long time = stopTime - startTime;
-            System.out.println("time===="+time);
-            if(time>=1000) {
-                logger.info("机器响应时间为，" + time);
-            }*/
+            String provider_core_count = invocation.getAttachment(PROVIDER_CORE_COUNT);
+            if (provider_core_count != null) {
+                result.setAttachment(PROVIDER_CORE_COUNT, invocation.getAttachment(PROVIDER_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-
-        //   RpcStatus.getStatus(invoker.getUrl(),invocation.getMethodName()).set(POOL_CORE_COUNT,String.valueOf(coreCount));
-
-        /*  int threadcount=map.get("dubbo").getThreads();
-
-         */
-     /*   if (result.hasException()) {
-            System.out.println(">>>>>>>");
-        }*/
-        // System.out.println( "corecount======"+invocation.getAttachment(POOL_CORE_COUNT));
-/*        System.out.println("quota======"+System.getProperty("quota"));
-        result.setAttachment("quota",System.getProperty("quota"));*/
-        //   Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
         return result;
     }
 
