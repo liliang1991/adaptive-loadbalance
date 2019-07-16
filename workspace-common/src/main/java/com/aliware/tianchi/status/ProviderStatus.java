@@ -5,6 +5,8 @@ public class ProviderStatus {
     private int activeCount;
     private int threadCount;
     private long startTime;
+    private int enabled;
+
 
     public String getHost() {
         return host;
@@ -36,5 +38,13 @@ public class ProviderStatus {
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
+    }
+
+    public int getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(int enabled) {
+        this.enabled = enabled;
     }
 }
