@@ -38,6 +38,10 @@ public class TestServerFilter implements Filter {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
         try {
+            int activeThread = Integer.parseInt(invocation.getAttachment(PROVIDER_CORE_COUNT));
+            if(activeThread>=map.get("dubbo").getThreads()*0.97) {
+                throw  new RpcException("provider Thread pool is EXHAUSTED"+activeThread);
+            }
             return invoker.invoke(invocation);
         } catch (Exception e) {
             e.printStackTrace();
