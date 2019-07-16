@@ -13,7 +13,7 @@ public class CompletableFutureTest {
 
 
     }
-    public static void main(String[] args)throws InterruptedException {
+    public static void main(String[] args)throws Exception {
         long l = System.currentTimeMillis();
 
         CompletableFuture<Integer> completableFuture = CompletableFuture.supplyAsync(() ->
@@ -30,10 +30,13 @@ public class CompletableFutureTest {
         {
             System.out.println("结果：" + result);
         });
+        if(completableFuture.isDone()) {
+            completableFuture.get();
+        }
+        //CompletableFuture.allOf(completableFuture).get();
 
         System.out.println("主线程运算耗时:" + (System.currentTimeMillis() - l) + " ms");
         System.out.println(">>>>>>>>>");
-
         new CountDownLatch(1).await();
     }
 }
