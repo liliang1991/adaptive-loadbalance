@@ -27,7 +27,7 @@ public class TestRequestLimiter implements RequestLimiter {
      * @return false 不提交给服务端业务线程池直接返回，客户端可以在 Filter 中捕获 RpcException
      * true 不限流
      */
-    public static final String POOL_CORE_COUNT = "active_thread";
+    public static final String PROVIDER_CORE_COUNT = "provider_thread";
     Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
     static ProviderStatus providerStatus = new ProviderStatus();
 
@@ -42,11 +42,11 @@ public class TestRequestLimiter implements RequestLimiter {
               return false;
           }
           map.get("dubbo").setCorethreads(activeTaskCount);*/
-/*          Invocation invocation = (Invocation) request.getData();
-          invocation.getAttachments().put(POOL_CORE_COUNT, String.valueOf(activeTaskCount));*/
-            if(activeTaskCount>=map.get("dubbo").getThreads()){
+          Invocation invocation = (Invocation) request.getData();
+          invocation.getAttachments().put(PROVIDER_CORE_COUNT, String.valueOf(activeTaskCount));
+       /*     if(activeTaskCount>=map.get("dubbo").getThreads()){
                 return false;
-            }
+            }*/
             providerStatus.setActiveCount(activeTaskCount);
             providerStatus.setHost(System.getProperty("quota"));
             providerStatus.setThreadCount(map.get("dubbo").getThreads());

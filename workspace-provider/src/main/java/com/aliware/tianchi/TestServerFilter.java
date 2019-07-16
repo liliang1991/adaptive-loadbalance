@@ -90,12 +90,16 @@ public class TestServerFilter implements Filter {
 
     public static final String START_TIME = "start_time";
 
-    public static final String PROVIDER_CORE_COUNT = "active_thread";
+    public static final String PROVIDER_CORE_COUNT = "provider_thread";
     private static final String ELAPSE_TIME = "elapsed_time";
     public static final String POOL_CORE_COUNT = "active_thread";
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
+        String provider_core_count = invocation.getAttachment(PROVIDER_CORE_COUNT);
+        if (provider_core_count != null) {
+            result.setAttachment(PROVIDER_CORE_COUNT, invocation.getAttachment(PROVIDER_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
+        }
      /*   String startAttach = invocation.getAttachment(TIMEOUT_FILTER_START_TIME);
         if (startAttach != null) {
             long elapsed = System.currentTimeMillis() - Long.valueOf(startAttach);

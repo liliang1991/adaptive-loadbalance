@@ -65,7 +65,7 @@ public class CallbackServiceImpl implements CallbackService {
 
     }
     public String getProvoderStatus(){
-        ProviderStatus providerStatus = TestRequestLimiter.providerStatus;
+   /*     ProviderStatus providerStatus = TestRequestLimiter.providerStatus;
         if(providerStatus.getActiveCount()>=providerStatus.getThreadCount()*0.8){
             providerStatus.setEnabled(0);
         }else {
@@ -73,6 +73,7 @@ public class CallbackServiceImpl implements CallbackService {
         }
         String jsonString = gson.toJson(providerStatus);
 
-        return jsonString; // send notification for change
+        return jsonString; // send notification for change*/
+   return null;
     }
 }
