@@ -6,7 +6,8 @@ public class SmoothServer {
     private volatile int weight;
 
     private volatile int curWeight;
-
+    private int activeCount;
+    private int threadCount;
     public SmoothServer(String ip, int weight, int curWeight) {
         this.ip = ip;
         this.weight = weight;
@@ -47,4 +48,19 @@ public class SmoothServer {
         return  "{service: ip==}"+ip+", weight==="+weight+", curweight==="+curWeight;
     }
 
+    public int getActiveCount() {
+        return activeCount;
+    }
+
+    public void setActiveCount(int activeCount) {
+        this.activeCount = activeCount;
+    }
+
+    public int getThreadCount() {
+        return threadCount;
+    }
+
+    public void setThreadCount(int threadCount) {
+        this.threadCount = threadCount;
+    }
 }

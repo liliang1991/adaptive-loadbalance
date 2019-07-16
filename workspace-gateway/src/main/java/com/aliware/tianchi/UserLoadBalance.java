@@ -42,6 +42,15 @@ public class UserLoadBalance implements LoadBalance {
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         try {
             int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
+         /*   if(index==0){
+                SmoothServer smoothServer=map.get("provider-small");
+                int activecount=smoothServer.getActiveCount();
+                if(activecount>195){
+
+                  logger.info("small 活跃线程为"+activecount);
+                }
+
+            }*/
             Invoker invoker = invokers.get(index);
             return invoker;
 
@@ -64,7 +73,7 @@ public class UserLoadBalance implements LoadBalance {
 
     public static void addCallBack(Result result, Invoker<?> invoker, Invocation invocation) {
             try {
-                callBack(result, invoker, invocation);
+                        callBack(result, invoker, invocation);
             }catch (Exception e) {
              e.printStackTrace();
             }
@@ -107,18 +116,20 @@ public class UserLoadBalance implements LoadBalance {
 
     }
 
-    public static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
+    public  static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
 
             String params = result.getAttachment(PROVIDER_CORE_COUNT);
         if(params!=null) {
             int activeThread = Integer.parseInt(params.split("\t")[0]);
             int providerThread = Integer.parseInt(params.split("\t")[1]);
+
             String host = invoker.getUrl().getHost();
             double threadbl = 1 - ((double) activeThread / (double) providerThread);
-            double w = 0;
-            w = Double.parseDouble(df.format(((threadbl))));
+          double  w = Double.parseDouble(df.format(((threadbl))));
             int res = new Double(w * 100).intValue();
             SmoothServer smoothServer = new SmoothServer(res, 0);
+            smoothServer.setActiveCount(activeThread);
+            smoothServer.setThreadCount(providerThread);
             map.put(host, smoothServer);
         }
         }
