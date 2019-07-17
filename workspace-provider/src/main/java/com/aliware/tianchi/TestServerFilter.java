@@ -51,13 +51,11 @@ public class TestServerFilter implements Filter {
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
             //  logger.info("result=="+result.toString());
-
             URL url = invoker.getUrl();
             String methodName = invocation.getMethodName();
             RpcStatus rpcStatus = RpcStatus.getStatus(url, methodName);
             int maxActive = rpcStatus.getActive();
-            long elapsed=rpcStatus.getMaxElapsed();
-            result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads()+"\t"+elapsed);
+            result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads());
         } catch (Exception e) {
             e.printStackTrace();
         }

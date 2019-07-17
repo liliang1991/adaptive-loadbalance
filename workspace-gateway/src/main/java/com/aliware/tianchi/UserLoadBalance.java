@@ -59,9 +59,8 @@ public class UserLoadBalance implements LoadBalance {
             if (params != null) {
                 int activeThread = Integer.parseInt(params.split("\t")[0]);
                 int providerThread = Integer.parseInt(params.split("\t")[1]);
-                long elapsed=Long.parseLong(params.split("\t")[2]);
                 int surplusThread=providerThread-activeThread;
-                SmoothServer     smoothServer = new SmoothServer(surplusThread, 0,elapsed);
+                SmoothServer smoothServer = new SmoothServer(surplusThread, 0);
                 map.put(host, smoothServer);
             }
         }catch (Exception e){
