@@ -27,7 +27,6 @@ public class TestRequestLimiter implements RequestLimiter {
      * @return false 不提交给服务端业务线程池直接返回，客户端可以在 Filter 中捕获 RpcException
      * true 不限流
      */
-    static ProviderStatus providerStatus = new ProviderStatus();
     @Override
     public boolean tryAcquire(Request request, int activeTaskCount) {
         try {
