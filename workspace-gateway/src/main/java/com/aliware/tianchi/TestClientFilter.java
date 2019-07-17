@@ -45,12 +45,13 @@ public class TestClientFilter implements Filter {
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
             if (isAsync) {
                 AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
-                asyncRpcResult.thenApplyWithContext(r -> doPostProcess(r, invoker, invocation));
-                resultCompletableFuture = asyncRpcResult.getResultFuture();
-                return asyncRpcResult.getRpcResult();
+                asyncRpcResult.getResultFuture().thenAccept(r -> doPostProcess(r, invoker, invocation));
+                //return asyncRpcResult.getRpcResult();
             } else {
-                return invoker.invoke(invocation);
+               // return invoker.invoke(invocation);
             }
+            return invoker.invoke(invocation);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,14 +59,12 @@ public class TestClientFilter implements Filter {
 
     }
 
-    public Result doPostProcess(Result result, Invoker<?> invoker, Invocation invocation) {
+    public void doPostProcess(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
             UserLoadBalance.addCallBack(result, invoker, invocation);
         }catch (Exception e){
           e.printStackTrace();
         }
-
-        return result;
     }
 
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
@@ -76,12 +75,6 @@ public class TestClientFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        try {
             return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-
     }
 }
