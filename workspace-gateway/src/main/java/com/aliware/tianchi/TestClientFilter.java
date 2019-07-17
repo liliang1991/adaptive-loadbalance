@@ -35,8 +35,6 @@ public class TestClientFilter implements Filter {
             } else {
                 return invoker.invoke(invocation);
             }
-           // return invoker.invoke(invocation);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
