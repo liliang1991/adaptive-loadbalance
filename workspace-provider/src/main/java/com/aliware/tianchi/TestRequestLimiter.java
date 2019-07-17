@@ -46,9 +46,9 @@ public class TestRequestLimiter implements RequestLimiter {
           Invocation invocation = (Invocation) request.getData();
           invocation.getAttachments().put(PROVIDER_CORE_COUNT, String.valueOf(activeTaskCount));
 
-        /*    if(activeTaskCount>=map.get("dubbo").getThreads()*0.97){
+            if(activeTaskCount>=map.get("dubbo").getThreads()*0.97){
                 return false;
-            }*/
+            }
 /*             if(System.getProperty("quota").equals("small")&&activeTaskCount>=195){
                  System.out.println("active===="+activeTaskCount);
 

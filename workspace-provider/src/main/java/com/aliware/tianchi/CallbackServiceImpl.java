@@ -56,16 +56,16 @@ public class CallbackServiceImpl implements CallbackService {
     public void addListener(String key, CallbackListener listener) {
         try {
             listeners.put(key, listener);
-            listener.receiveServerMsg(getProvoderStatus());
-
-            getProvoderStatus();
+            listener.receiveServerMsg("");
+          //  getProvoderStatus()
+            //getProvoderStatus();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
     public String getProvoderStatus(){
-   /*     ProviderStatus providerStatus = TestRequestLimiter.providerStatus;
+        ProviderStatus providerStatus = TestRequestLimiter.providerStatus;
         if(providerStatus.getActiveCount()>=providerStatus.getThreadCount()*0.8){
             providerStatus.setEnabled(0);
         }else {
@@ -73,7 +73,6 @@ public class CallbackServiceImpl implements CallbackService {
         }
         String jsonString = gson.toJson(providerStatus);
 
-        return jsonString; // send notification for change*/
-   return null;
+        return jsonString; // send notification for change
     }
 }

@@ -73,7 +73,7 @@ public class UserLoadBalance implements LoadBalance {
 
     public static void addCallBack(Result result, Invoker<?> invoker, Invocation invocation) {
             try {
-                        callBack(result, invoker, invocation);
+                callBack(result, invoker, invocation);
             }catch (Exception e) {
              e.printStackTrace();
             }
@@ -150,12 +150,25 @@ public class UserLoadBalance implements LoadBalance {
 
         }*/
         String host = "small";
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 15; i++) {
             // System.out.println("w===="+SmoothWeight.sumWeight());
         /*    if (i == 10) {
                 SmoothServer smoothServer = new SmoothServer(host, 5, 0);
                 map.put(host, smoothServer);
             }*/
+          if(i==5){
+              for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
+                  System.out.println("key===="+entry.getKey());
+              }
+              SmoothServer    smoothServer = new SmoothServer(5, 0);
+              map.put("provider-small", smoothServer);
+              for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
+                  System.out.println("key===="+entry.getKey());
+              }
+
+          }
+
+
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }
 
