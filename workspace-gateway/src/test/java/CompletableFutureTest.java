@@ -1,3 +1,8 @@
+import com.aliware.tianchi.UserLoadBalance;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.Invoker;
+import org.apache.dubbo.rpc.Result;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
@@ -30,13 +35,22 @@ public class CompletableFutureTest {
         {
             System.out.println("结果：" + result);
         });
-        if(completableFuture.isDone()) {
+        completableFuture.thenApply(r -> doPostProcess(r));
+      /*  if(completableFuture.isDone()) {
             completableFuture.get();
-        }
+        }*/
         //CompletableFuture.allOf(completableFuture).get();
 
         System.out.println("主线程运算耗时:" + (System.currentTimeMillis() - l) + " ms");
         System.out.println(">>>>>>>>>");
         new CountDownLatch(1).await();
+    }
+    public static int doPostProcess(int num) {
+        try {
+            System.out.println("回调"+(num+10));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return num+10;
     }
 }
