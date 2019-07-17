@@ -27,34 +27,10 @@ public class TestRequestLimiter implements RequestLimiter {
      * @return false 不提交给服务端业务线程池直接返回，客户端可以在 Filter 中捕获 RpcException
      * true 不限流
      */
-    public static final String PROVIDER_CORE_COUNT = "provider_thread";
-    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
     static ProviderStatus providerStatus = new ProviderStatus();
-
     @Override
     public boolean tryAcquire(Request request, int activeTaskCount) {
-
-
-        //System.out.println("quata======"+System.getProperty("quota")+activeTaskCount);
-        //  System.out.println("v====="+request.getData());
         try {
-/*          if(activeTaskCount>=map.get("dubbo").getThreads()*0.9){
-              return false;
-          }
-          map.get("dubbo").setCorethreads(activeTaskCount);*/
-
-
-
-        /*    if(activeTaskCount>=map.get("dubbo").getThreads()*0.97){
-                return false;
-            }*/
-/*             if(System.getProperty("quota").equals("small")&&activeTaskCount>=195){
-                 System.out.println("active===="+activeTaskCount);
-
-             }*/
-      /*    if(activeTaskCount>=map.get("dubbo").getThreads()){
-              return false;
-          }*/
 
             return true;
         } catch (Exception e) {
@@ -63,9 +39,6 @@ public class TestRequestLimiter implements RequestLimiter {
         return false;
     }
 
-    public void getProvoderStatus() {
-
-    }
 
 
 }

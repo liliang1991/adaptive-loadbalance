@@ -29,8 +29,9 @@ public class TestClientFilter implements Filter {
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
             if (isAsync) {
                 AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
+                //对一个CompletableFuture返回的结果进行后续操作
                 asyncRpcResult.thenApplyWithContext(r -> doPostProcess(r, invoker, invocation));
-                return asyncRpcResult.getRpcResult();
+                return asyncRpcResult;
             } else {
                 return invoker.invoke(invocation);
             }
@@ -51,13 +52,6 @@ public class TestClientFilter implements Filter {
         }
         return result;
     }
-
-    private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
-
-    public static final String POOL_CORE_COUNT = "active_thread";
-    public static final String WEIGHT = "weight";
-    public static final String START_TIME = "start_time";
-
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
             return result;

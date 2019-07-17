@@ -24,10 +24,7 @@ import java.util.concurrent.CompletableFuture;
  * 用户可以基于获取获取服务端的推送信息，与 CallbackService 搭配使用
  */
 public class CallbackListenerImpl implements CallbackListener {
-    public static Gson gson = new Gson();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    static CompletableFuture completableFuture = null;
-
     @Override
     public void receiveServerMsg(String jsonStr) {
     /*   int active_thread_count=Integer.parseInt(msg.split("\t")[0]);

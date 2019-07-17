@@ -6,7 +6,6 @@ import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 /**
@@ -55,11 +54,6 @@ public class UserLoadBalance implements LoadBalance {
         }
 
     }
-
-    private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
-    public static final String START_TIME = "start_time";
-
-
 
     public static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
