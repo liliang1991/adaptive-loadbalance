@@ -117,35 +117,34 @@ public class UserLoadBalance implements LoadBalance {
     }
 
     public static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
-        String host = invoker.getUrl().getHost();
-        SmoothServer smoothServer=null;
+        try {
+            String host = invoker.getUrl().getHost();
+            SmoothServer smoothServer=null;
 
-        if (result.hasException()) {
-            int min=map.entrySet().stream().mapToInt(w->w.getValue().getWeight()).min().getAsInt();
-            if((min-1)>0) {
-                smoothServer = new SmoothServer(min-1, 0);
-            }
-        } else {
-            String params = result.getAttachment(PROVIDER_CORE_COUNT);
-            if (params != null) {
+
+                String params = result.getAttachment(PROVIDER_CORE_COUNT);
+                if (params != null) {
               /*  URL url = invoker.getUrl();
                 String methodName = invocation.getMethodName();*/
-                int activeThread = Integer.parseInt(params.split("\t")[0]);
-                int providerThread = Integer.parseInt(params.split("\t")[1]);
-           /*     RpcStatus count = RpcStatus.getStatus(url,methodName);*/
-               // logger.info("active==="+count.getActive()+"\t"+activeThread);
+                    int activeThread = Integer.parseInt(params.split("\t")[0]);
+                    int providerThread = Integer.parseInt(params.split("\t")[1]);
+                    /*     RpcStatus count = RpcStatus.getStatus(url,methodName);*/
+                    // logger.info("active==="+count.getActive()+"\t"+activeThread);
 
-                double threadbl = 1 - ((double) activeThread / (double) providerThread);
-                double w = Double.parseDouble(df.format(((threadbl))));
-                int res = new Double(w * 100).intValue();
-                smoothServer = new SmoothServer(res, 0);
-                smoothServer.setActiveCount(activeThread);
-                smoothServer.setThreadCount(providerThread);
-            }
+                    double threadbl = 1 - ((double) activeThread / (double) providerThread);
+                    double w = Double.parseDouble(df.format(((threadbl))));
+                    int res = new Double(w * 100).intValue();
+                    smoothServer = new SmoothServer(res, 0);
+                    smoothServer.setActiveCount(activeThread);
+                    smoothServer.setThreadCount(providerThread);
+                    map.put(host, smoothServer);
 
-            map.put(host, smoothServer);
-
+                }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
+
     }
 
 
