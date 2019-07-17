@@ -8,18 +8,8 @@ import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.*;
-import org.apache.dubbo.rpc.filter.tps.DefaultTPSLimiter;
-import org.apache.dubbo.rpc.filter.tps.TPSLimiter;
-import org.apache.dubbo.rpc.model.ApplicationModel;
-import org.apache.dubbo.rpc.model.ConsumerMethodModel;
-import org.apache.dubbo.rpc.model.ConsumerModel;
-import org.springframework.cache.Cache;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author daofeng.xjf
@@ -42,16 +32,16 @@ public class TestServerFilter implements Filter {
         boolean isException = false;
         try {
 
-            RpcStatus count = RpcStatus.getStatus(url,methodName);
-            int maxActive=count.getActive();
-            if(maxActive>=map.get("dubbo").getThreads()) {
-                throw  new RpcException("provider Thread pool is EXHAUSTED "+maxActive);
+            RpcStatus count = RpcStatus.getStatus(url, methodName);
+            int maxActive = count.getActive();
+            if (maxActive >= map.get("dubbo").getThreads()) {
+                throw new RpcException("provider Thread pool is EXHAUSTED " + maxActive);
             }
             RpcStatus.beginCount(invoker.getUrl(), invocation.getMethodName());
 
             return invoker.invoke(invocation);
         } catch (Exception e) {
-            isException=true;
+            isException = true;
             e.printStackTrace();
         } finally {
             RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, isException);
@@ -68,17 +58,13 @@ public class TestServerFilter implements Filter {
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
-          //  logger.info("result=="+result.toString());
+            //  logger.info("result=="+result.toString());
 
             URL url = invoker.getUrl();
             String methodName = invocation.getMethodName();
-            RpcStatus count = RpcStatus.getStatus(url,methodName);
-            int maxActive=count.getActive();
-            String provider_core_count = invocation.getAttachment(PROVIDER_CORE_COUNT);
-            /*if(maxActive>Integer.parseInt(provider_core_count)) {
-                logger.info("active===" + count.getActive() + "\t" + provider_core_count);
-            }*/
-                result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads());
+            RpcStatus count = RpcStatus.getStatus(url, methodName);
+            int maxActive = count.getActive();
+            result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads());
         } catch (Exception e) {
             e.printStackTrace();
         }
