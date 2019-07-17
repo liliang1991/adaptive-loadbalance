@@ -1,27 +1,14 @@
 package com.aliware.tianchi;
 
 import com.aliware.tianchi.smooth.SmoothServer;
-import com.aliware.tianchi.status.ProviderStatus;
-import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.URLBuilder;
-import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
-import org.apache.dubbo.common.threadpool.ThreadPool;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
-import org.apache.dubbo.rpc.cluster.loadbalance.AbstractLoadBalance;
-
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * @author daofeng.xjf
  * <p>
@@ -61,16 +48,6 @@ public class UserLoadBalance implements LoadBalance {
         return null;
     }
 
-    public static void add(ProviderStatus providerStatus) {
-
-        completableFuture = CompletableFuture.runAsync(() ->
-        {
-            getResult(providerStatus);
-        });
-
-
-    }
-
     public static void addCallBack(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
             callBack(result, invoker, invocation);
@@ -83,38 +60,7 @@ public class UserLoadBalance implements LoadBalance {
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
     public static final String START_TIME = "start_time";
 
-    public static void getResult(ProviderStatus providerStatus) {
-        try {
-        /*    double threadbl = 1 - ((double) activeThread / (double) providerThread);
-            double w = 0;
-            w = Double.parseDouble(df.format(((threadbl))));
-            int res = new Double(w * 100).intValue();
-                SmoothServer smoothServer = new SmoothServer(res, 0);
-            map.put(host, smoothServer);*/
-            if (1 == providerStatus.getEnabled()) {
-                SmoothServer smoothServer = null;
-                if ("small".equals(providerStatus.getHost())) {
-                    smoothServer = new SmoothServer(1, 0);
 
-                } else if ("medium".equals(providerStatus.getHost())) {
-                    smoothServer = new SmoothServer(2, 0);
-
-                } else {
-                    smoothServer = new SmoothServer(3, 0);
-                }
-                map.put(providerStatus.getHost(), smoothServer);
-
-            } else {
-                SmoothServer smoothServer = new SmoothServer(0, 0);
-                map.put(providerStatus.getHost(), smoothServer);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-        }
-
-    }
 
     public static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
@@ -141,12 +87,6 @@ public class UserLoadBalance implements LoadBalance {
         }
 
 
-    }
-
-
-    public static boolean updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
-
-        return false;
     }
 
 
