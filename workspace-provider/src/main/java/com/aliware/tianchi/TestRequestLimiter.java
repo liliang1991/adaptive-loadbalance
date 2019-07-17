@@ -43,8 +43,7 @@ public class TestRequestLimiter implements RequestLimiter {
           }
           map.get("dubbo").setCorethreads(activeTaskCount);*/
 
-          Invocation invocation = (Invocation) request.getData();
-          invocation.getAttachments().put(PROVIDER_CORE_COUNT, String.valueOf(activeTaskCount));
+
 
         /*    if(activeTaskCount>=map.get("dubbo").getThreads()*0.97){
                 return false;
@@ -53,11 +52,6 @@ public class TestRequestLimiter implements RequestLimiter {
                  System.out.println("active===="+activeTaskCount);
 
              }*/
-
-            providerStatus.setActiveCount(activeTaskCount);
-            providerStatus.setHost(System.getProperty("quota"));
-            providerStatus.setThreadCount(map.get("dubbo").getThreads());
-            providerStatus.setStartTime(System.currentTimeMillis());
       /*    if(activeTaskCount>=map.get("dubbo").getThreads()){
               return false;
           }*/

@@ -69,9 +69,7 @@ public class TestServerFilter implements Filter {
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
           //  logger.info("result=="+result.toString());
-            if(result==null){
-                return result;
-            }
+
             URL url = invoker.getUrl();
             String methodName = invocation.getMethodName();
             RpcStatus count = RpcStatus.getStatus(url,methodName);
@@ -80,9 +78,7 @@ public class TestServerFilter implements Filter {
             /*if(maxActive>Integer.parseInt(provider_core_count)) {
                 logger.info("active===" + count.getActive() + "\t" + provider_core_count);
             }*/
-            if (provider_core_count != null) {
                 result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads());
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }

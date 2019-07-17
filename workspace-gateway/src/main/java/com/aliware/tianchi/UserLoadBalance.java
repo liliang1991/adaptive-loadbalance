@@ -127,7 +127,6 @@ public class UserLoadBalance implements LoadBalance {
                     int providerThread = Integer.parseInt(params.split("\t")[1]);
                     /*     RpcStatus count = RpcStatus.getStatus(url,methodName);*/
                     // logger.info("active==="+count.getActive()+"\t"+activeThread);
-
                     double threadbl = 1 - ((double) activeThread / (double) providerThread);
                     double w = Double.parseDouble(df.format(((threadbl))));
                     int res = new Double(w * 100).intValue();
