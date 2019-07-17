@@ -42,7 +42,7 @@ public class SmoothServer {
 
     @Override
     public String toString() {
-        return  "{service: ip==}"+ip+", weight==="+weight+", curweight==="+curWeight;
+        return  "{service:}ip=="+ip+", weight==="+weight+", curweight==="+curWeight;
     }
 
     public int getActiveCount() {

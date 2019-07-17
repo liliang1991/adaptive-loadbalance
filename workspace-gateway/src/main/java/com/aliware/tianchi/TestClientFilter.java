@@ -1,29 +1,16 @@
 package com.aliware.tianchi;
 
-import com.aliware.tianchi.status.ProviderStatus;
 import org.apache.dubbo.common.Constants;
-import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
-import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 
-import org.apache.dubbo.config.ApplicationConfig;
-import org.apache.dubbo.config.ServiceConfig;
 import org.apache.dubbo.rpc.*;
 
-import org.apache.dubbo.rpc.listener.CallbackListener;
-import org.apache.dubbo.rpc.service.CallbackService;
-import org.apache.dubbo.rpc.service.GenericException;
-import org.apache.dubbo.rpc.service.GenericService;
+
 import org.apache.dubbo.rpc.support.RpcUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
+
 
 /**
  * @author daofeng.xjf
@@ -34,10 +21,7 @@ import java.util.concurrent.ExecutorService;
  */
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
-    CompletableFuture<Result> resultCompletableFuture = null;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    Map<String, Integer> map = new HashMap<>();
-
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try {
