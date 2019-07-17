@@ -119,9 +119,6 @@ public class UserLoadBalance implements LoadBalance {
     public static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
             String host = invoker.getUrl().getHost();
-            SmoothServer smoothServer=null;
-
-
                 String params = result.getAttachment(PROVIDER_CORE_COUNT);
                 if (params != null) {
               /*  URL url = invoker.getUrl();
@@ -134,7 +131,7 @@ public class UserLoadBalance implements LoadBalance {
                     double threadbl = 1 - ((double) activeThread / (double) providerThread);
                     double w = Double.parseDouble(df.format(((threadbl))));
                     int res = new Double(w * 100).intValue();
-                    smoothServer = new SmoothServer(res, 0);
+                    SmoothServer     smoothServer = new SmoothServer(res, 0);
                     smoothServer.setActiveCount(activeThread);
                     smoothServer.setThreadCount(providerThread);
                     map.put(host, smoothServer);
