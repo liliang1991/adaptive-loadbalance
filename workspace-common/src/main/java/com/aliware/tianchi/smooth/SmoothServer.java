@@ -8,11 +8,8 @@ public class SmoothServer {
     private volatile int curWeight;
     private int activeCount;
     private int threadCount;
-    public SmoothServer(String ip, int weight, int curWeight) {
-        this.ip = ip;
-        this.weight = weight;
-        this.curWeight = curWeight;
-    }
+    private long elapsed;
+
 
     public SmoothServer(int weight, int curWeight) {
         this.weight = weight;
@@ -62,5 +59,19 @@ public class SmoothServer {
 
     public void setThreadCount(int threadCount) {
         this.threadCount = threadCount;
+    }
+
+    public long getElapsed() {
+        return elapsed;
+    }
+
+    public void setElapsed(long elapsed) {
+        this.elapsed = elapsed;
+    }
+
+    public SmoothServer(int weight, int curWeight, long elapsed) {
+        this.weight = weight;
+        this.curWeight = curWeight;
+        this.elapsed = elapsed;
     }
 }
