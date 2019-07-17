@@ -128,8 +128,12 @@ public class UserLoadBalance implements LoadBalance {
         } else {
             String params = result.getAttachment(PROVIDER_CORE_COUNT);
             if (params != null) {
+                URL url = invoker.getUrl();
+                String methodName = invocation.getMethodName();
                 int activeThread = Integer.parseInt(params.split("\t")[0]);
                 int providerThread = Integer.parseInt(params.split("\t")[1]);
+                RpcStatus count = RpcStatus.getStatus(url,methodName);
+               // logger.info("active==="+count.getActive()+"\t"+activeThread);
 
                 double threadbl = 1 - ((double) activeThread / (double) providerThread);
                 double w = Double.parseDouble(df.format(((threadbl))));

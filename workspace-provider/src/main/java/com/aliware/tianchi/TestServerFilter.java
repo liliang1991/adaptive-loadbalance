@@ -36,16 +36,25 @@ public class TestServerFilter implements Filter {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-
+        URL url = invoker.getUrl();
+        String methodName = invocation.getMethodName();
+        long begin = System.currentTimeMillis();
+        boolean isException = false;
         try {
-            int activeThread = Integer.parseInt(invocation.getAttachment(PROVIDER_CORE_COUNT));
-            if(activeThread>=map.get("dubbo").getThreads()*0.97) {
-                throw  new RpcException("provider Thread pool is EXHAUSTED "+activeThread);
+
+            RpcStatus count = RpcStatus.getStatus(url,methodName);
+            int maxActive=count.getActive();
+            if(maxActive>=map.get("dubbo").getThreads()) {
+                throw  new RpcException("provider Thread pool is EXHAUSTED "+maxActive);
             }
+            RpcStatus.beginCount(invoker.getUrl(), invocation.getMethodName());
+
             return invoker.invoke(invocation);
         } catch (Exception e) {
+            isException=true;
             e.printStackTrace();
         } finally {
+            RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, isException);
         }
         return null;
     }
@@ -63,9 +72,16 @@ public class TestServerFilter implements Filter {
             if(result==null){
                 return result;
             }
+            URL url = invoker.getUrl();
+            String methodName = invocation.getMethodName();
+            RpcStatus count = RpcStatus.getStatus(url,methodName);
+            int maxActive=count.getActive();
             String provider_core_count = invocation.getAttachment(PROVIDER_CORE_COUNT);
+            /*if(maxActive>Integer.parseInt(provider_core_count)) {
+                logger.info("active===" + count.getActive() + "\t" + provider_core_count);
+            }*/
             if (provider_core_count != null) {
-                result.setAttachment(PROVIDER_CORE_COUNT, invocation.getAttachment(PROVIDER_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());
+                result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads());
             }
         } catch (Exception e) {
             e.printStackTrace();
