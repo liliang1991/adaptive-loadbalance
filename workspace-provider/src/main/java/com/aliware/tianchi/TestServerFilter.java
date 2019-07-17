@@ -62,9 +62,10 @@ public class TestServerFilter implements Filter {
 
             URL url = invoker.getUrl();
             String methodName = invocation.getMethodName();
-            RpcStatus count = RpcStatus.getStatus(url, methodName);
-            int maxActive = count.getActive();
-            result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads());
+            RpcStatus rpcStatus = RpcStatus.getStatus(url, methodName);
+            int maxActive = rpcStatus.getActive();
+            long elapsed=rpcStatus.getMaxElapsed();
+            result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads()+"\t"+elapsed);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -29,6 +29,7 @@ public class UserLoadBalance implements LoadBalance {
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         try {
             int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
+          //  map.entrySet().stream().forEach(elapsed-> System.out.println(index+"\t"+elapsed.getValue().getElapsed()));
          /*   if(index==0){
                 SmoothServer smoothServer=map.get("provider-small");
                 int activecount=smoothServer.getActiveCount();
@@ -71,12 +72,16 @@ public class UserLoadBalance implements LoadBalance {
                 String methodName = invocation.getMethodName();*/
                     int activeThread = Integer.parseInt(params.split("\t")[0]);
                     int providerThread = Integer.parseInt(params.split("\t")[1]);
+                    long elapsed=Long.parseLong(params.split("\t")[2]);
+
                     /*     RpcStatus count = RpcStatus.getStatus(url,methodName);*/
                     // logger.info("active==="+count.getActive()+"\t"+activeThread);
                     double threadbl = 1 - ((double) activeThread / (double) providerThread);
-                    double w = Double.parseDouble(df.format(((threadbl))));
+                    double elapsedbl = 1 - ((double) elapsed / (double) 1000);
+                    double bl=threadbl+elapsedbl;
+                    double w = Double.parseDouble(df.format(((bl))));
                     int res = new Double(w * 100).intValue();
-                    SmoothServer     smoothServer = new SmoothServer(res, 0);
+                    SmoothServer     smoothServer = new SmoothServer(res, 0,elapsed);
                     smoothServer.setActiveCount(activeThread);
                     smoothServer.setThreadCount(providerThread);
                     map.put(host, smoothServer);
