@@ -1,5 +1,6 @@
 package com.aliware.tianchi;
 
+import com.aliware.tianchi.status.ProviderStatus;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
@@ -7,8 +8,14 @@ import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 
+import org.apache.dubbo.config.ApplicationConfig;
+import org.apache.dubbo.config.ServiceConfig;
 import org.apache.dubbo.rpc.*;
 
+import org.apache.dubbo.rpc.listener.CallbackListener;
+import org.apache.dubbo.rpc.service.CallbackService;
+import org.apache.dubbo.rpc.service.GenericException;
+import org.apache.dubbo.rpc.service.GenericService;
 import org.apache.dubbo.rpc.support.RpcUtils;
 
 import java.util.Date;
@@ -29,12 +36,12 @@ import java.util.concurrent.ExecutorService;
 public class TestClientFilter implements Filter {
     CompletableFuture<Result> resultCompletableFuture = null;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-     Map<String,Integer> map=new HashMap<>();
+    Map<String, Integer> map = new HashMap<>();
+
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try {
-           // RpcStatus.beginCount(invoker.getUrl(), invocation.getMethodName());
-
+            // RpcStatus.beginCount(invoker.getUrl(), invocation.getMethodName());
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
             if (isAsync) {
                 AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
@@ -50,10 +57,27 @@ public class TestClientFilter implements Filter {
         return null;
 
     }
-   public  Result doPostProcess(Result result,Invoker<?> invoker, Invocation invocation){
-        UserLoadBalance.addCallBack(result,invoker,invocation);
-   return result;
-   }
+
+    public Result doPostProcess(Result result, Invoker<?> invoker, Invocation invocation) {
+        try {
+            /*ServiceConfig<CallbackService> service = new ServiceConfig<CallbackService>();
+            service.setApplication(new ApplicationConfig("bean-provider"));
+            service.setRef(new CallbackService() {
+
+                public void addListener(String jsonstr, CallbackListener listener) {
+                    // ProviderStatus providerStatus = gson.fromJson(jsonStr, ProviderStatus.class);
+                    logger.info("jsonstr======"+jsonstr);
+                }
+            });*/
+
+            UserLoadBalance.addCallBack(result, invoker, invocation);
+        }catch (Exception e){
+          e.printStackTrace();
+        }
+
+        return result;
+    }
+
     private static final String TIMEOUT_FILTER_START_TIME = "timeout_filter_start_time";
 
     public static final String POOL_CORE_COUNT = "active_thread";

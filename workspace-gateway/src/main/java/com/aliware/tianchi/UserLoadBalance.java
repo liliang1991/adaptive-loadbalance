@@ -54,11 +54,11 @@ public class UserLoadBalance implements LoadBalance {
             Invoker invoker = invokers.get(index);
             return invoker;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
 
         }
-       return null;
+        return null;
     }
 
     public static void add(ProviderStatus providerStatus) {
@@ -72,11 +72,11 @@ public class UserLoadBalance implements LoadBalance {
     }
 
     public static void addCallBack(Result result, Invoker<?> invoker, Invocation invocation) {
-            try {
-                callBack(result, invoker, invocation);
-            }catch (Exception e) {
-             e.printStackTrace();
-            }
+        try {
+            callBack(result, invoker, invocation);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -116,23 +116,33 @@ public class UserLoadBalance implements LoadBalance {
 
     }
 
-    public  static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
+    public static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
+        String host = invoker.getUrl().getHost();
+        SmoothServer smoothServer=null;
 
+        if (result.hasException()) {
+            int min=map.entrySet().stream().mapToInt(w->w.getValue().getWeight()).min().getAsInt();
+            if((min-1)>0) {
+                smoothServer = new SmoothServer(min-1, 0);
+            }
+        } else {
             String params = result.getAttachment(PROVIDER_CORE_COUNT);
-        if(params!=null) {
-            int activeThread = Integer.parseInt(params.split("\t")[0]);
-            int providerThread = Integer.parseInt(params.split("\t")[1]);
+            if (params != null) {
+                int activeThread = Integer.parseInt(params.split("\t")[0]);
+                int providerThread = Integer.parseInt(params.split("\t")[1]);
 
-            String host = invoker.getUrl().getHost();
-            double threadbl = 1 - ((double) activeThread / (double) providerThread);
-          double  w = Double.parseDouble(df.format(((threadbl))));
-            int res = new Double(w * 100).intValue();
-            SmoothServer smoothServer = new SmoothServer(res, 0);
-            smoothServer.setActiveCount(activeThread);
-            smoothServer.setThreadCount(providerThread);
+                double threadbl = 1 - ((double) activeThread / (double) providerThread);
+                double w = Double.parseDouble(df.format(((threadbl))));
+                int res = new Double(w * 100).intValue();
+                smoothServer = new SmoothServer(res, 0);
+                smoothServer.setActiveCount(activeThread);
+                smoothServer.setThreadCount(providerThread);
+            }
+
             map.put(host, smoothServer);
+
         }
-        }
+    }
 
 
     public static boolean updateThreadWeight(Map<String, SmoothServer> map, String host, int activeThread, int thread) {
@@ -156,18 +166,17 @@ public class UserLoadBalance implements LoadBalance {
                 SmoothServer smoothServer = new SmoothServer(host, 5, 0);
                 map.put(host, smoothServer);
             }*/
-          if(i==5){
-              for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
-                  System.out.println("key===="+entry.getKey());
-              }
-              SmoothServer    smoothServer = new SmoothServer(5, 0);
-              map.put("provider-small", smoothServer);
-              for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
-                  System.out.println("key===="+entry.getKey());
-              }
+            if (i == 5) {
+                for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
+                    System.out.println("key====" + entry.getKey());
+                }
+                SmoothServer smoothServer = new SmoothServer(0, 0);
+                map.put("provider-small", smoothServer);
+                for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
+                    System.out.println("key====" + entry.getKey());
+                }
 
-          }
-
+            }
 
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }

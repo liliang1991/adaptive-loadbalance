@@ -71,4 +71,10 @@ public class SmoothWeight {
         }
         return value;
     }
+
+    public static void main(String[] args) {
+        int min=servers.entrySet().stream().mapToInt(w->w.getValue().getWeight()).min().getAsInt();
+        System.out.println(min);
+
+    }
 }

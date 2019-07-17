@@ -40,7 +40,7 @@ public class TestServerFilter implements Filter {
         try {
             int activeThread = Integer.parseInt(invocation.getAttachment(PROVIDER_CORE_COUNT));
             if(activeThread>=map.get("dubbo").getThreads()*0.97) {
-                throw  new RpcException("provider Thread pool is EXHAUSTED"+activeThread);
+                throw  new RpcException("provider Thread pool is EXHAUSTED "+activeThread);
             }
             return invoker.invoke(invocation);
         } catch (Exception e) {
@@ -59,6 +59,10 @@ public class TestServerFilter implements Filter {
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
+          //  logger.info("result=="+result.toString());
+            if(result==null){
+                return result;
+            }
             String provider_core_count = invocation.getAttachment(PROVIDER_CORE_COUNT);
             if (provider_core_count != null) {
                 result.setAttachment(PROVIDER_CORE_COUNT, invocation.getAttachment(PROVIDER_CORE_COUNT) + "\t" + map.get("dubbo").getThreads());

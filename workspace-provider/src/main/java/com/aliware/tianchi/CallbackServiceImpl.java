@@ -56,7 +56,7 @@ public class CallbackServiceImpl implements CallbackService {
     public void addListener(String key, CallbackListener listener) {
         try {
             listeners.put(key, listener);
-            listener.receiveServerMsg("");
+            listener.receiveServerMsg(getProvoderStatus());
           //  getProvoderStatus()
             //getProvoderStatus();
         } catch (Exception e) {
