@@ -32,7 +32,7 @@ public class CallbackServiceImpl implements CallbackService {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
                         try {
                             if(getProvoderStatus()!=null) {
-                                entry.getValue().receiveServerMsg(getProvoderStatus());
+                                entry.getValue().receiveServerMsg("");
                             }
                         } catch (Throwable t1) {
                             listeners.remove(entry.getKey());
