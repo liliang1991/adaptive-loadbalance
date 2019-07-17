@@ -20,30 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * 用户可以基于此服务，实现服务端向客户端动态推送的功能
  */
 public class CallbackServiceImpl implements CallbackService {
-    public static Gson gson = new Gson();
-
     public CallbackServiceImpl() {
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-
-            @Override
-            public void run() {
-                if (!listeners.isEmpty()) {
-                    for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
-                        try {
-                                entry.getValue().receiveServerMsg("");
-                        } catch (Throwable t1) {
-                            listeners.remove(entry.getKey());
-                        }
-                    }
-                }
-            }
-        }, 0, 100);
-
     }
-
-    private Timer timer = new Timer();
-
     /**
      * key: listener type
      * value: callback listener
@@ -55,22 +33,11 @@ public class CallbackServiceImpl implements CallbackService {
         try {
             listeners.put(key, listener);
             listener.receiveServerMsg("");
-          //  getProvoderStatus()
-            //getProvoderStatus();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-    public String getProvoderStatus(){
-        ProviderStatus providerStatus = TestRequestLimiter.providerStatus;
-        if(providerStatus.getActiveCount()>=providerStatus.getThreadCount()*0.8){
-            providerStatus.setEnabled(0);
-        }else {
-            providerStatus.setEnabled(1);
-        }
-        String jsonString = gson.toJson(providerStatus);
 
-        return jsonString; // send notification for change
-    }
 }
