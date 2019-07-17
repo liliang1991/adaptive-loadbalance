@@ -60,23 +60,11 @@ public class UserLoadBalance implements LoadBalance {
             String host = invoker.getUrl().getHost();
                 String params = result.getAttachment(PROVIDER_CORE_COUNT);
                 if (params != null) {
-              /*  URL url = invoker.getUrl();
-                String methodName = invocation.getMethodName();*/
                     int activeThread = Integer.parseInt(params.split("\t")[0]);
                     int providerThread = Integer.parseInt(params.split("\t")[1]);
                     long elapsed=Long.parseLong(params.split("\t")[2]);
-
-                    /*     RpcStatus count = RpcStatus.getStatus(url,methodName);*/
-                    // logger.info("active==="+count.getActive()+"\t"+activeThread);
                     int surplusThread=providerThread-activeThread;
-                 /*   double threadbl = 1 - ((double) activeThread / (double) providerThread);
-                    double elapsedbl = 1 - ((double) elapsed / (double) 1000);
-                    double bl=threadbl+elapsedbl;
-                    double w = Double.parseDouble(df.format(((bl))));
-                    int res = new Double(w * 100).intValue();*/
                     SmoothServer     smoothServer = new SmoothServer(surplusThread, 0,elapsed);
-                    smoothServer.setActiveCount(activeThread);
-                    smoothServer.setThreadCount(providerThread);
                     map.put(host, smoothServer);
 
                 }
