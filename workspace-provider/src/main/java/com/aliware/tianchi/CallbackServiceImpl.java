@@ -31,9 +31,7 @@ public class CallbackServiceImpl implements CallbackService {
                 if (!listeners.isEmpty()) {
                     for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
                         try {
-                            if(getProvoderStatus()!=null) {
                                 entry.getValue().receiveServerMsg("");
-                            }
                         } catch (Throwable t1) {
                             listeners.remove(entry.getKey());
                         }
