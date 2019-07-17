@@ -22,8 +22,6 @@ import java.util.Map;
 public class TestServerFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
-
-
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         URL url = invoker.getUrl();
@@ -48,13 +46,7 @@ public class TestServerFilter implements Filter {
         }
         return null;
     }
-
-    public static final String START_TIME = "start_time";
-
     public static final String PROVIDER_CORE_COUNT = "provider_thread";
-    private static final String ELAPSE_TIME = "elapsed_time";
-    public static final String POOL_CORE_COUNT = "active_thread";
-
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
