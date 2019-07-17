@@ -60,16 +60,6 @@ public class TestClientFilter implements Filter {
 
     public Result doPostProcess(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
-            /*ServiceConfig<CallbackService> service = new ServiceConfig<CallbackService>();
-            service.setApplication(new ApplicationConfig("bean-provider"));
-            service.setRef(new CallbackService() {
-
-                public void addListener(String jsonstr, CallbackListener listener) {
-                    // ProviderStatus providerStatus = gson.fromJson(jsonStr, ProviderStatus.class);
-                    logger.info("jsonstr======"+jsonstr);
-                }
-            });*/
-
             UserLoadBalance.addCallBack(result, invoker, invocation);
         }catch (Exception e){
           e.printStackTrace();
