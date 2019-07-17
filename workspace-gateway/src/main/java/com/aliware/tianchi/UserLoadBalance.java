@@ -80,7 +80,7 @@ public class UserLoadBalance implements LoadBalance {
                     double bl=threadbl+elapsedbl;
                     double w = Double.parseDouble(df.format(((bl))));
                     int res = new Double(w * 100).intValue();*/
-                    SmoothServer     smoothServer = new SmoothServer(surplusThread, 0,elapsed);
+                    SmoothServer     smoothServer = new SmoothServer((1000-new Long(elapsed).intValue()), 0,elapsed);
                     smoothServer.setActiveCount(activeThread);
                     smoothServer.setThreadCount(providerThread);
                     map.put(host, smoothServer);
