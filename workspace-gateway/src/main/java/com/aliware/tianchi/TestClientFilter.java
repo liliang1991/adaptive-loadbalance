@@ -46,11 +46,11 @@ public class TestClientFilter implements Filter {
             if (isAsync) {
                 AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
                 asyncRpcResult.thenApplyWithContext(r -> doPostProcess(r, invoker, invocation));
-                //return asyncRpcResult.getRpcResult();
+                return asyncRpcResult.getRpcResult();
             } else {
-               // return invoker.invoke(invocation);
+                return invoker.invoke(invocation);
             }
-            return invoker.invoke(invocation);
+           // return invoker.invoke(invocation);
 
         } catch (Exception e) {
             e.printStackTrace();
