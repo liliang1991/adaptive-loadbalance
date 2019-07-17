@@ -18,10 +18,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class UserLoadBalance implements LoadBalance {
     private static final Logger logger = LoggerFactory.getLogger(UserLoadBalance.class);
-    static CompletableFuture completableFuture = null;
     static Map<String, SmoothServer> map = SmoothWeight.servers;
     public static final String PROVIDER_CORE_COUNT = "provider_thread";
-
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         try {
@@ -38,7 +36,6 @@ public class UserLoadBalance implements LoadBalance {
             }*/
             Invoker invoker = invokers.get(index);
             return invoker;
-
         } catch (Exception e) {
             e.printStackTrace();
 
