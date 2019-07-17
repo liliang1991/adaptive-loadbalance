@@ -76,12 +76,13 @@ public class UserLoadBalance implements LoadBalance {
 
                     /*     RpcStatus count = RpcStatus.getStatus(url,methodName);*/
                     // logger.info("active==="+count.getActive()+"\t"+activeThread);
-                    double threadbl = 1 - ((double) activeThread / (double) providerThread);
+                    int surplusThread=providerThread-activeThread;
+                 /*   double threadbl = 1 - ((double) activeThread / (double) providerThread);
                     double elapsedbl = 1 - ((double) elapsed / (double) 1000);
                     double bl=threadbl+elapsedbl;
                     double w = Double.parseDouble(df.format(((bl))));
-                    int res = new Double(w * 100).intValue();
-                    SmoothServer     smoothServer = new SmoothServer(res, 0,elapsed);
+                    int res = new Double(w * 100).intValue();*/
+                    SmoothServer     smoothServer = new SmoothServer(surplusThread, 0,elapsed);
                     smoothServer.setActiveCount(activeThread);
                     smoothServer.setThreadCount(providerThread);
                     map.put(host, smoothServer);
