@@ -3,10 +3,8 @@ package com.aliware.tianchi;
 import com.aliware.tianchi.smooth.SmoothServer;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SmoothWeight {
-    // static List<SmoothServer> servers = new CopyOnWriteArrayList<SmoothServer>(Arrays.asList(new SmoothServer("provider-small", 1, 0), new SmoothServer("provider-medium", 2, 0), new SmoothServer("provider-large", 3, 0)));
     static  Map<String, SmoothServer> servers = null;
 
     static {
@@ -59,13 +57,12 @@ public class SmoothWeight {
         return num;
 
     }
-
-    public static void initServer() {
-
-    }
-
     public  static int sumWeight() {
-       return servers.entrySet().stream().mapToInt(w->w.getValue().getWeight()).sum();
+        int value = 0;
+        for (Map.Entry<String, SmoothServer> entry : servers.entrySet()) {
+            value += entry.getValue().getWeight();
+        }
+        return value;
     }
 
     public static void main(String[] args) {

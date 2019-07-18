@@ -7,7 +7,6 @@ import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 /**
  * @author daofeng.xjf
  * <p>
@@ -86,7 +85,7 @@ public class UserLoadBalance implements LoadBalance {
                 SmoothServer smoothServer = new SmoothServer(host, 5, 0);
                 map.put(host, smoothServer);
             }*/
-            if (i == 5) {
+      /*      if (i == 5) {
                 for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
                     System.out.println("key====" + entry.getKey());
                 }
@@ -96,7 +95,7 @@ public class UserLoadBalance implements LoadBalance {
                     System.out.println("key====" + entry.getKey());
                 }
 
-            }
+            }*/
 
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }
