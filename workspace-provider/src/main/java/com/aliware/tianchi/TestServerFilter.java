@@ -35,7 +35,7 @@ public class TestServerFilter implements Filter {
             if (maxActive >= map.get("dubbo").getThreads()) {
                 throw new RpcException("provider Thread pool is EXHAUSTED " + maxActive);
             }
-            RpcStatus.beginCount(invoker.getUrl(), invocation.getMethodName());
+            RpcStatus.beginCount(url,methodName);
 
             return invoker.invoke(invocation);
         } catch (Exception e) {
