@@ -10,6 +10,7 @@ import org.apache.dubbo.rpc.*;
 
 import org.apache.dubbo.rpc.support.RpcUtils;
 
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -22,6 +23,7 @@ import org.apache.dubbo.rpc.support.RpcUtils;
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    AtomicInteger i=new AtomicInteger();
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         try {
@@ -45,7 +47,10 @@ public class TestClientFilter implements Filter {
 
     public Result doPostProcess(Result result, Invoker<?> invoker) {
         try {
+            i.getAndIncrement();
             UserLoadBalance.addCallBack(result, invoker);
+            i.getAndDecrement();
+            logger.info("quene==="+i.get());
         }catch (Exception e){
           e.printStackTrace();
         }
