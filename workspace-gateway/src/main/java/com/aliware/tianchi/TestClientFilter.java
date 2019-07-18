@@ -50,8 +50,5 @@ public class TestClientFilter implements Filter {
         }
         return result;
     }
-    @Override
-    public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-            return result;
-    }
+
 }
