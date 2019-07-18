@@ -23,16 +23,6 @@ public class UserLoadBalance implements LoadBalance {
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         try {
             int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
-          //  map.entrySet().stream().forEach(elapsed-> System.out.println(index+"\t"+elapsed.getValue().getElapsed()));
-         /*   if(index==0){
-                SmoothServer smoothServer=map.get("provider-small");
-                int activecount=smoothServer.getActiveCount();
-                if(activecount>195){
-
-                  logger.info("small 活跃线程为"+activecount);
-                }
-
-            }*/
             Invoker invoker = invokers.get(index);
             return invoker;
         } catch (Exception e) {
@@ -42,16 +32,16 @@ public class UserLoadBalance implements LoadBalance {
         return null;
     }
 
-    public static void addCallBack(Result result, Invoker<?> invoker, Invocation invocation) {
+    public static void addCallBack(Result result, Invoker<?> invoker) {
         try {
-            callBack(result, invoker, invocation);
+            callBack(result, invoker);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public static void callBack(Result result, Invoker<?> invoker, Invocation invocation) {
+    public static void callBack(Result result, Invoker<?> invoker) {
         try {
             String host = invoker.getUrl().getHost();
             String params = result.getAttachment(PROVIDER_CORE_COUNT);

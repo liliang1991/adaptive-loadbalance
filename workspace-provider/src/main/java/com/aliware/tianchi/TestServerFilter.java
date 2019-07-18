@@ -36,9 +36,8 @@ public class TestServerFilter implements Filter {
                 throw new RpcException("provider Thread pool is EXHAUSTED " + maxActive);
             }
             RpcStatus.beginCount(url,methodName);
-            Result result= invoker.invoke(invocation);
-             result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads());
-            return result;
+
+            return invoker.invoke(invocation);
         } catch (Exception e) {
             isException = true;
             e.printStackTrace();
@@ -48,7 +47,21 @@ public class TestServerFilter implements Filter {
         return null;
     }
     public static final String PROVIDER_CORE_COUNT = "provider_thread";
+    @Override
+    public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
+        try {
+            //  logger.info("result=="+result.toString());
+            URL url = invoker.getUrl();
+            String methodName = invocation.getMethodName();
+            RpcStatus rpcStatus = RpcStatus.getStatus(url, methodName);
+            int maxActive = rpcStatus.getActive();
+            result.setAttachment(PROVIDER_CORE_COUNT, maxActive + "\t" + map.get("dubbo").getThreads());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        return result;
+    }
 
 
 }
