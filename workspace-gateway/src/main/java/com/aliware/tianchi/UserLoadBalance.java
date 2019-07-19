@@ -23,10 +23,10 @@ public class UserLoadBalance implements LoadBalance {
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         try {
             Invoker invoker = invokers.get(SmoothWeight.getServer(SmoothWeight.sumWeight()));
-            logger.info("选中的机器为"+invoker.getUrl().getHost());
+     /*       logger.info("选中的机器为"+invoker.getUrl().getHost());
             for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
               logger.info("时间消耗"+entry.getKey()+"\t"+entry.getValue().getWeight()+"\t"+entry.getValue().getElapsed());
-            }
+            }*/
             return invoker;
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,7 +53,8 @@ public class UserLoadBalance implements LoadBalance {
                 int thread=Integer.parseInt(params.split("\t")[1]);
                 long elapsed=Integer.parseInt(params.split("\t")[2]);
                 int surplusThread=thread-activeThread;
-                SmoothServer smoothServer = new SmoothServer(surplusThread, 0,elapsed);
+                int surpluselapsed=SmoothWeight.sumElapsed();
+                SmoothServer smoothServer = new SmoothServer(surplusThread+surpluselapsed, 0,elapsed);
                 map.put(host, smoothServer);
             }
         }catch (Exception e){
