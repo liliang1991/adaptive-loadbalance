@@ -1,6 +1,7 @@
 package com.aliware.tianchi;
 
 import org.apache.dubbo.common.Constants;
+import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
@@ -10,6 +11,7 @@ import org.apache.dubbo.rpc.*;
 
 import org.apache.dubbo.rpc.support.RpcUtils;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -25,31 +27,57 @@ public class TestClientFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        long startTime=System.currentTimeMillis();
+
         try {
             // RpcStatus.beginCount(invoker.getUrl(), invocation.getMethodName());
+
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
-            Result result=invoker.invoke(invocation);
             if (isAsync) {
-                AsyncRpcResult asyncRpcResult = (AsyncRpcResult) result;
-                //对一个CompletableFuture返回的结果进行后续操作
-                asyncRpcResult.getResultFuture().thenAcceptAsync(r -> doPostProcess(r, invoker));
+                    AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
+                    asyncRpcResult.thenApplyWithContext(r -> doPostProcess(r, invoker));
+                logger.info("客户端调用==="+String.valueOf(System.currentTimeMillis()-startTime));
+
                 return asyncRpcResult;
+                //logger.info("result==="+asyncRpcResult.getResultFuture());
+            //    return asyncRpcResult;
             } else {
-                return result;
+                logger.info("客户端调用==="+String.valueOf(System.currentTimeMillis()-startTime));
+
+                return invoker.invoke(invocation);
+
             }
+            // return invoker.invoke(invocation);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
+
 
     }
 
-    public void doPostProcess(Result result, Invoker<?> invoker) {
+
+    public Result doPostProcess(Result result, Invoker<?> invoker) {
         try {
+            long startTime=System.currentTimeMillis();
+
             UserLoadBalance.addCallBack(result, invoker);
+            logger.info("回调时间为==="+String.valueOf(System.currentTimeMillis()-startTime));
+
         }catch (Exception e){
           e.printStackTrace();
         }
+        return  result;
     }
+
+    @Override
+    public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
+            logger.info("result==="+result.toString());
+
+        return result;
+    }
+
 
 }

@@ -22,8 +22,9 @@ public class UserLoadBalance implements LoadBalance {
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         try {
-            int index = SmoothWeight.getServer(SmoothWeight.sumWeight());
-            Invoker invoker = invokers.get(index);
+            long startTime=System.currentTimeMillis();
+            Invoker invoker = invokers.get(SmoothWeight.getServer(SmoothWeight.sumWeight()));
+            logger.info("负载均衡调用==="+String.valueOf(System.currentTimeMillis()-startTime));
             return invoker;
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,6 +1,5 @@
 package com.aliware.tianchi;
 
-import com.aliware.tianchi.status.ProviderStatus;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.remoting.exchange.Request;

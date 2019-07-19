@@ -1,5 +1,4 @@
 package com.aliware.tianchi;
-import com.aliware.tianchi.status.ProviderStatus;
 import com.google.gson.Gson;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;

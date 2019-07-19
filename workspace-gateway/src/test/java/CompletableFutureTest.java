@@ -35,7 +35,7 @@ public class CompletableFutureTest {
         {
             System.out.println("结果：" + result);
         });
-        completableFuture.thenApply(r -> doPostProcess(r));
+        completableFuture.thenAcceptAsync(r -> doPostProcess(r));
       /*  if(completableFuture.isDone()) {
             completableFuture.get();
         }*/
@@ -45,12 +45,11 @@ public class CompletableFutureTest {
         System.out.println(">>>>>>>>>");
         new CountDownLatch(1).await();
     }
-    public static int doPostProcess(int num) {
+    public static void doPostProcess(int num) {
         try {
             System.out.println("回调"+(num+10));
         }catch (Exception e){
             e.printStackTrace();
         }
-        return num+10;
     }
 }

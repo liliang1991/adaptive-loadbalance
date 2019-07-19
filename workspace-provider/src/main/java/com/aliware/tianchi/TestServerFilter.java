@@ -24,6 +24,8 @@ public class TestServerFilter implements Filter {
     private static final int PROVIDER_THREADS= ConfigManager.getInstance().getProtocols().get("dubbo").getThreads();
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        long startTime=System.currentTimeMillis();
+
         URL url = invoker.getUrl();
         String methodName = invocation.getMethodName();
         long begin = System.currentTimeMillis();
@@ -36,14 +38,17 @@ public class TestServerFilter implements Filter {
                 throw new RpcException("provider Thread pool is EXHAUSTED " + maxActive);
             }
             RpcStatus.beginCount(url,methodName);
+            Result result= invoker.invoke(invocation);
+            logger.info("服务端调用==="+String.valueOf(System.currentTimeMillis()-startTime));
 
-            return invoker.invoke(invocation);
+            return result;
         } catch (Exception e) {
             isException = true;
             e.printStackTrace();
         } finally {
             RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, isException);
         }
+
         return null;
     }
     public static final String PROVIDER_CORE_COUNT = "provider_thread";
