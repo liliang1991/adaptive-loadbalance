@@ -53,14 +53,14 @@ public class UserLoadBalance implements LoadBalance {
                 int thread=Integer.parseInt(params.split("\t")[1]);
                 long elapsed=Integer.parseInt(params.split("\t")[2]);
                 if(activeThread<=thread*0.3){
-                    SmoothServer smoothServer = new SmoothServer(1, 0,elapsed);
+                    SmoothServer smoothServer = new SmoothServer(3, 0,elapsed);
                     map.put(host, smoothServer);
 
                 }else if(activeThread<=thread*0.6){
                     SmoothServer smoothServer = new SmoothServer(2, 0,elapsed);
                     map.put(host, smoothServer);
                 }else {
-                    SmoothServer smoothServer = new SmoothServer(3, 0,elapsed);
+                    SmoothServer smoothServer = new SmoothServer(1, 0,elapsed);
                     map.put(host, smoothServer);
                 }
             }
