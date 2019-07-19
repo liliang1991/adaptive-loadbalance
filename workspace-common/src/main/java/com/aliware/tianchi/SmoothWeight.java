@@ -65,7 +65,14 @@ public class SmoothWeight {
        // System.out.println("sum===="+value);
         return value;
     }
-
+    public  static int sumElapsed() {
+        int value = 0;
+        for (Map.Entry<String, SmoothServer> entry : servers.entrySet()) {
+            value += entry.getValue().getElapsed();
+        }
+        // System.out.println("sum===="+value);
+        return value;
+    }
     public static void main(String[] args) {
         int min=servers.entrySet().stream().mapToInt(w->w.getValue().getWeight()).sum();
         System.out.println(min);
