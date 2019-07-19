@@ -32,7 +32,7 @@ public class TestClientFilter implements Filter {
             if (isAsync) {
                 AsyncRpcResult asyncRpcResult = (AsyncRpcResult) result;
                 //对一个CompletableFuture返回的结果进行后续操作
-                asyncRpcResult.thenApplyWithContext(r -> doPostProcess(r, invoker));
+                asyncRpcResult.getResultFuture().thenAcceptAsync(r -> doPostProcess(r, invoker));
                 return asyncRpcResult;
             } else {
                 return result;
@@ -44,13 +44,12 @@ public class TestClientFilter implements Filter {
 
     }
 
-    public Result doPostProcess(Result result, Invoker<?> invoker) {
+    public void doPostProcess(Result result, Invoker<?> invoker) {
         try {
             UserLoadBalance.addCallBack(result, invoker);
         }catch (Exception e){
           e.printStackTrace();
         }
-        return result;
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 @Activate(group = Constants.PROVIDER)
 public class TestServerFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    Map<String, ProtocolConfig> map = ConfigManager.getInstance().getProtocols();
+    private static final int PROVIDER_THREADS= ConfigManager.getInstance().getProtocols().get("dubbo").getThreads();
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         URL url = invoker.getUrl();
@@ -32,7 +32,7 @@ public class TestServerFilter implements Filter {
 
             RpcStatus count = RpcStatus.getStatus(url, methodName);
             int maxActive = count.getActive();
-            if (maxActive >= map.get("dubbo").getThreads()) {
+            if (maxActive >= PROVIDER_THREADS) {
                 throw new RpcException("provider Thread pool is EXHAUSTED " + maxActive);
             }
             RpcStatus.beginCount(url,methodName);
@@ -54,7 +54,7 @@ public class TestServerFilter implements Filter {
             URL url = invoker.getUrl();
             String methodName = invocation.getMethodName();
             RpcStatus rpcStatus = RpcStatus.getStatus(url, methodName);
-            int surplusThread = map.get("dubbo").getThreads()-rpcStatus.getActive();
+            int surplusThread = PROVIDER_THREADS-rpcStatus.getActive();
             result.setAttachment(PROVIDER_CORE_COUNT, String.valueOf(surplusThread));
         } catch (Exception e) {
             e.printStackTrace();
