@@ -27,27 +27,22 @@ public class TestClientFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        long startTime=System.currentTimeMillis();
 
         try {
             // RpcStatus.beginCount(invoker.getUrl(), invocation.getMethodName());
-
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
             if (isAsync) {
                     AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
                     asyncRpcResult.thenApplyWithContext(r -> doPostProcess(r, invoker));
-                logger.info("客户端调用==="+String.valueOf(System.currentTimeMillis()-startTime));
-
                 return asyncRpcResult;
                 //logger.info("result==="+asyncRpcResult.getResultFuture());
             //    return asyncRpcResult;
             } else {
-                logger.info("客户端调用==="+String.valueOf(System.currentTimeMillis()-startTime));
 
                 return invoker.invoke(invocation);
 
             }
-            // return invoker.invoke(invocation);
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,10 +56,8 @@ public class TestClientFilter implements Filter {
 
     public Result doPostProcess(Result result, Invoker<?> invoker) {
         try {
-            long startTime=System.currentTimeMillis();
 
             UserLoadBalance.addCallBack(result, invoker);
-            logger.info("回调时间为==="+String.valueOf(System.currentTimeMillis()-startTime));
 
         }catch (Exception e){
           e.printStackTrace();
@@ -74,7 +67,6 @@ public class TestClientFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-            logger.info("result==="+result.toString());
 
         return result;
     }

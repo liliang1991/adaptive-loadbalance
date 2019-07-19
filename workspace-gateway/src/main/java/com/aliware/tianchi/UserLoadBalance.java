@@ -22,9 +22,11 @@ public class UserLoadBalance implements LoadBalance {
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         try {
-            long startTime=System.currentTimeMillis();
             Invoker invoker = invokers.get(SmoothWeight.getServer(SmoothWeight.sumWeight()));
-            logger.info("负载均衡调用==="+String.valueOf(System.currentTimeMillis()-startTime));
+         /*   logger.info("选中的机器为"+invoker.getUrl().getHost());
+            for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
+              logger.info("时间消耗"+entry.getKey()+"\t"+entry.getValue().getWeight()+"\t"+entry.getValue().getElapsed());
+            }*/
             return invoker;
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,9 +49,20 @@ public class UserLoadBalance implements LoadBalance {
             String host = invoker.getUrl().getHost();
             String params = result.getAttachment(PROVIDER_CORE_COUNT);
             if (params != null) {
-                int surplusThread=Integer.parseInt(params);
-                SmoothServer smoothServer = new SmoothServer(surplusThread, 0);
-                map.put(host, smoothServer);
+                int activeThread=Integer.parseInt(params.split("\t")[0]);
+                int thread=Integer.parseInt(params.split("\t")[1]);
+                long elapsed=Integer.parseInt(params.split("\t")[2]);
+                if(activeThread<=thread*0.3){
+                    SmoothServer smoothServer = new SmoothServer(1, 0,elapsed);
+                    map.put(host, smoothServer);
+
+                }else if(activeThread<=thread*0.6){
+                    SmoothServer smoothServer = new SmoothServer(2, 0,elapsed);
+                    map.put(host, smoothServer);
+                }else {
+                    SmoothServer smoothServer = new SmoothServer(3, 0,elapsed);
+                    map.put(host, smoothServer);
+                }
             }
         }catch (Exception e){
             e.printStackTrace();

@@ -10,6 +10,8 @@ import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.*;
 
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author daofeng.xjf
@@ -20,36 +22,33 @@ import java.util.Map;
  */
 @Activate(group = Constants.PROVIDER)
 public class TestServerFilter implements Filter {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(TestServerFilter.class);
     private static final int PROVIDER_THREADS= ConfigManager.getInstance().getProtocols().get("dubbo").getThreads();
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        long startTime=System.currentTimeMillis();
 
         URL url = invoker.getUrl();
         String methodName = invocation.getMethodName();
-        long begin = System.currentTimeMillis();
         boolean isException = false;
-        try {
+        long begin = System.currentTimeMillis();
 
+        try {
             RpcStatus count = RpcStatus.getStatus(url, methodName);
             int maxActive = count.getActive();
             if (maxActive >= PROVIDER_THREADS) {
                 throw new RpcException("provider Thread pool is EXHAUSTED " + maxActive);
             }
             RpcStatus.beginCount(url,methodName);
-            Result result= invoker.invoke(invocation);
-            logger.info("服务端调用==="+String.valueOf(System.currentTimeMillis()-startTime));
 
+            Result result= invoker.invoke(invocation);
             return result;
         } catch (Exception e) {
             isException = true;
-            e.printStackTrace();
+            throw new RpcException("provider invoke exception ");
+
         } finally {
             RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, isException);
         }
-
-        return null;
     }
     public static final String PROVIDER_CORE_COUNT = "provider_thread";
     @Override
@@ -59,8 +58,9 @@ public class TestServerFilter implements Filter {
             URL url = invoker.getUrl();
             String methodName = invocation.getMethodName();
             RpcStatus rpcStatus = RpcStatus.getStatus(url, methodName);
-            int surplusThread = PROVIDER_THREADS-rpcStatus.getActive();
-            result.setAttachment(PROVIDER_CORE_COUNT, String.valueOf(surplusThread));
+            long elapsed=rpcStatus.getMaxElapsed();
+
+            result.setAttachment(PROVIDER_CORE_COUNT, rpcStatus.getActive()+"\t"+PROVIDER_THREADS+"\t"+elapsed);
         } catch (Exception e) {
             e.printStackTrace();
         }
