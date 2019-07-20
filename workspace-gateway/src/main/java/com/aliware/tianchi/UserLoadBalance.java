@@ -56,17 +56,9 @@ public class UserLoadBalance implements LoadBalance {
                 ProviderStatus providerStatus=gson.fromJson(params, ProviderStatus.class);
                 int activeThread=providerStatus.getActiveCount();
                 int thread=providerStatus.getThreadCount();
-                long elapsed=providerStatus.getElapsed();
-              // logger.info("elapsed===="+elapsed);
-                //总次数
-                long total=providerStatus.getTotal();
-                //总调用时长
-                long totalElapsed=providerStatus.getTotalElapsed();
-                long avg=totalElapsed/total;
-                int surplusThread=(thread-activeThread)+(new Long(avg-elapsed).intValue());
-                if(surplusThread<=0){
-                    surplusThread=1;
-                }
+
+                int surplusThread=thread-activeThread;
+
         /*        int timeoutNum=map.get(host).getTimeoutCount();
                 if(timeoutNum>=0) {
                     if (elapsed > avg) {

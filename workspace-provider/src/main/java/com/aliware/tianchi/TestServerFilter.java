@@ -65,13 +65,9 @@ public class TestServerFilter implements Filter {
             String methodName = invocation.getMethodName();
             RpcStatus rpcStatus = RpcStatus.getStatus(url, methodName);
             ProviderStatus providerStatus=new ProviderStatus();
-            //总次数
-            providerStatus.setTotal(rpcStatus.getTotal());
-            //总调用时长
-            providerStatus.setTotalElapsed(rpcStatus.getTotalElapsed());
             providerStatus.setActiveCount(rpcStatus.getActive());
             providerStatus.setThreadCount(PROVIDER_THREADS);
-            providerStatus.setElapsed(Long.valueOf(invocation.getAttachment(ELAPSED)));
+
  /*           System.out.println("ELAPSED=="+invocation.getAttachment(ELAPSED));
             System.out.println("平均响应时间==="+totalElapsed/total);*/
             result.setAttachment(PROVIDER_CORE_COUNT, gson.toJson(providerStatus));

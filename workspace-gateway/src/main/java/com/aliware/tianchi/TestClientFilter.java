@@ -29,14 +29,12 @@ public class TestClientFilter implements Filter {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
         try {
-            // RpcStatus.beginCount(invoker.getUrl(), invocation.getMethodName());
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
             if (isAsync) {
                     AsyncRpcResult asyncRpcResult = (AsyncRpcResult) invoker.invoke(invocation);
                     asyncRpcResult.thenApplyWithContext(r -> doPostProcess(r, invoker));
                 return asyncRpcResult;
-                //logger.info("result==="+asyncRpcResult.getResultFuture());
-            //    return asyncRpcResult;
+
             } else {
 
                 return invoker.invoke(invocation);
