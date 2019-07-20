@@ -24,6 +24,8 @@ import java.util.concurrent.BlockingQueue;
 public class TestServerFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(TestServerFilter.class);
     private static final int PROVIDER_THREADS= ConfigManager.getInstance().getProtocols().get("dubbo").getThreads();
+    public static final String  ELAPSED= "elapsed";
+
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
@@ -47,7 +49,9 @@ public class TestServerFilter implements Filter {
             throw new RpcException("provider invoke exception ");
 
         } finally {
-            RpcStatus.endCount(url, methodName, System.currentTimeMillis() - begin, isException);
+            long elapsed=System.currentTimeMillis() - begin;
+            ((RpcInvocation)invocation).setAttachment(ELAPSED,String.valueOf(elapsed));
+            RpcStatus.endCount(url, methodName, elapsed, isException);
         }
     }
     public static final String PROVIDER_CORE_COUNT = "provider_thread";
@@ -58,9 +62,13 @@ public class TestServerFilter implements Filter {
             URL url = invoker.getUrl();
             String methodName = invocation.getMethodName();
             RpcStatus rpcStatus = RpcStatus.getStatus(url, methodName);
-            long elapsed=rpcStatus.getMaxElapsed();
-
-            result.setAttachment(PROVIDER_CORE_COUNT, rpcStatus.getActive()+"\t"+PROVIDER_THREADS+"\t"+elapsed);
+            //总次数
+            long total=rpcStatus.getTotal();
+            //总调用时长
+            long totalElapsed=rpcStatus.getTotalElapsed();
+ /*           System.out.println("ELAPSED=="+invocation.getAttachment(ELAPSED));
+            System.out.println("平均响应时间==="+totalElapsed/total);*/
+            result.setAttachment(PROVIDER_CORE_COUNT, rpcStatus.getActive()+"\t"+PROVIDER_THREADS+"\t"+invocation.getAttachment(ELAPSED));
         } catch (Exception e) {
             e.printStackTrace();
         }

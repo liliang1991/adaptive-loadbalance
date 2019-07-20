@@ -1,19 +1,43 @@
 package com.aliware.tianchi.smooth;
 
+import java.util.Comparator;
+import java.util.Map;
+
 public class SmoothServer {
     private String ip;
 
-    private volatile int weight;
+    private  int weight;
 
-    private volatile int curWeight;
+    private  int curWeight;
     private int activeCount;
     private int threadCount;
     private long elapsed;
+    private int surplusThread;
+    private int threadWeight;
 
+    public SmoothServer(){
+
+    }
 
     public SmoothServer(int weight, int curWeight) {
         this.weight = weight;
         this.curWeight = curWeight;
+    }
+
+    public int getThreadWeight() {
+        return threadWeight;
+    }
+
+    public void setThreadWeight(int threadWeight) {
+        this.threadWeight = threadWeight;
+    }
+
+    public int getSurplusThread() {
+        return surplusThread;
+    }
+
+    public void setSurplusThread(int surplusThread) {
+        this.surplusThread = surplusThread;
     }
 
     public String getIp() {
@@ -73,5 +97,10 @@ public class SmoothServer {
         this.weight = weight;
         this.curWeight = curWeight;
         this.elapsed = elapsed;
+    }
+
+    public int compareTo(SmoothServer other)
+    {
+        return this.getSurplusThread() - other.getSurplusThread();
     }
 }
