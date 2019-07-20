@@ -58,13 +58,16 @@ public class UserLoadBalance implements LoadBalance {
                 int thread=providerStatus.getThreadCount();
                 long elapsed=providerStatus.getElapsed();
               // logger.info("elapsed===="+elapsed);
-                int surplusThread=thread-activeThread;
                 //总次数
                 long total=providerStatus.getTotal();
                 //总调用时长
                 long totalElapsed=providerStatus.getTotalElapsed();
                 long avg=totalElapsed/total;
-                int timeoutNum=map.get(host).getTimeoutCount();
+                int surplusThread=thread-activeThread+new Long(elapsed-avg).intValue();
+                if(surplusThread<=0){
+                    surplusThread=1;
+                }
+        /*        int timeoutNum=map.get(host).getTimeoutCount();
                 if(timeoutNum>=0) {
                     if (elapsed > avg) {
                         timeoutNum = timeoutNum + 1;
@@ -75,8 +78,8 @@ public class UserLoadBalance implements LoadBalance {
 
                 if(timeoutNum>=100){
                     surplusThread=SmoothWeight.minWeight();
-                }
-                SmoothServer smoothServer = new SmoothServer(surplusThread, 0,elapsed,timeoutNum);
+                }*/
+                SmoothServer smoothServer = new SmoothServer(surplusThread, 0);
                 map.put(host, smoothServer);
             }
         }catch (Exception e){
