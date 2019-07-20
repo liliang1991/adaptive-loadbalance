@@ -57,7 +57,7 @@ public class UserLoadBalance implements LoadBalance {
                 int surplusThread=thread-activeThread;
                 //int surpluselapsed=SmoothWeight.sumElapsed()-elapsed;
 
-                 SmoothServer smoothServer=null;
+           /*      SmoothServer smoothServer=null;
                 if(activeThread<=thread*0.3){
                     smoothServer = new SmoothServer(5, 0,elapsed);
 
@@ -66,8 +66,8 @@ public class UserLoadBalance implements LoadBalance {
 
                 }else {
                     smoothServer = new SmoothServer(1, 0,elapsed);
-                }
-              //  SmoothServer smoothServer = new SmoothServer(surplusThread, 0,elapsed);
+                }*/
+                SmoothServer smoothServer = new SmoothServer(surplusThread, 0,elapsed);
                 map.put(host, smoothServer);
             }
         }catch (Exception e){
