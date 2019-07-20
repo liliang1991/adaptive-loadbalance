@@ -63,7 +63,7 @@ public class UserLoadBalance implements LoadBalance {
                 //总调用时长
                 long totalElapsed=providerStatus.getTotalElapsed();
                 long avg=totalElapsed/total;
-                int surplusThread=(thread-activeThread)+(new Long(avg).intValue());
+                int surplusThread=(thread-activeThread)-(new Long(avg).intValue());
 
         /*        int timeoutNum=map.get(host).getTimeoutCount();
                 if(timeoutNum>=0) {
