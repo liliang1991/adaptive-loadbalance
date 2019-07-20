@@ -1,6 +1,8 @@
 package com.aliware.tianchi;
 
 import com.aliware.tianchi.smooth.SmoothServer;
+import com.aliware.tianchi.status.ProviderStatus;
+import com.google.gson.Gson;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
@@ -19,6 +21,7 @@ public class UserLoadBalance implements LoadBalance {
     private static final Logger logger = LoggerFactory.getLogger(UserLoadBalance.class);
     static Map<String, SmoothServer> map = SmoothWeight.servers;
     public static final String PROVIDER_CORE_COUNT = "provider_thread";
+     static   Gson gson=new Gson();
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         try {
@@ -50,23 +53,23 @@ public class UserLoadBalance implements LoadBalance {
             String host = invoker.getUrl().getHost();
             String params = result.getAttachment(PROVIDER_CORE_COUNT);
             if (params != null) {
-                int activeThread=Integer.parseInt(params.split("\t")[0]);
-                int thread=Integer.parseInt(params.split("\t")[1]);
-                int elapsed=Integer.parseInt(params.split("\t")[2]);
+                ProviderStatus providerStatus=gson.fromJson(params, ProviderStatus.class);
+                int activeThread=providerStatus.getActiveCount();
+                int thread=providerStatus.getThreadCount();
+                long elapsed=providerStatus.getElapsed();
               // logger.info("elapsed===="+elapsed);
                 int surplusThread=thread-activeThread;
-                //int surpluselapsed=SmoothWeight.sumElapsed()-elapsed;
 
-           /*      SmoothServer smoothServer=null;
-                if(activeThread<=thread*0.3){
-                    smoothServer = new SmoothServer(5, 0,elapsed);
+                //总次数
+                long total=providerStatus.getTotal();
 
-                }else if(activeThread<=thread*0.6){
-                    smoothServer = new SmoothServer(4, 0,elapsed);
-
-                }else {
-                    smoothServer = new SmoothServer(1, 0,elapsed);
-                }*/
+                //总调用时长
+                long totalElapsed=providerStatus.getTotalElapsed();
+                long avg=totalElapsed/total;
+                if(elapsed>avg){
+                    //logger.info("响应超过平均时间 "+elapsed+"\t"+avg);
+                    surplusThread=SmoothWeight.minWeight();
+                }
                 SmoothServer smoothServer = new SmoothServer(surplusThread, 0,elapsed);
                 map.put(host, smoothServer);
             }

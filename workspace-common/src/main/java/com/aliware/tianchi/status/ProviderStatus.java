@@ -5,8 +5,11 @@ public class ProviderStatus {
     private int activeCount;
     private int threadCount;
     private long startTime;
-    private int enabled;
-
+    //总次数
+     private   long total;
+    //总调用时长
+    private long totalElapsed;
+    private long elapsed;
 
     public String getHost() {
         return host;
@@ -40,11 +43,27 @@ public class ProviderStatus {
         this.startTime = startTime;
     }
 
-    public int getEnabled() {
-        return enabled;
+    public long getTotal() {
+        return total;
     }
 
-    public void setEnabled(int enabled) {
-        this.enabled = enabled;
+    public void setTotal(long total) {
+        this.total = total;
+    }
+
+    public long getTotalElapsed() {
+        return totalElapsed;
+    }
+
+    public void setTotalElapsed(long totalElapsed) {
+        this.totalElapsed = totalElapsed;
+    }
+
+    public long getElapsed() {
+        return elapsed;
+    }
+
+    public void setElapsed(long elapsed) {
+        this.elapsed = elapsed;
     }
 }

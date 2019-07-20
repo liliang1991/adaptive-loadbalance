@@ -65,6 +65,11 @@ public class SmoothWeight {
        // System.out.println("sum===="+value);
         return value;
     }
+
+    public  static int minWeight() {
+        int min=servers.entrySet().stream().mapToInt(w->w.getValue().getWeight()).min().getAsInt();
+       return min;
+    }
     public  static int sumElapsed() {
         int value = 0;
         for (Map.Entry<String, SmoothServer> entry : servers.entrySet()) {
@@ -74,7 +79,7 @@ public class SmoothWeight {
         return value;
     }
     public static void main(String[] args) {
-        int min=servers.entrySet().stream().mapToInt(w->w.getValue().getWeight()).sum();
+        int min=servers.entrySet().stream().mapToInt(w->w.getValue().getWeight()).min().getAsInt();
         System.out.println(min);
 
     }

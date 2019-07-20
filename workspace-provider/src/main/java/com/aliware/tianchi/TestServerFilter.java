@@ -1,5 +1,7 @@
 package com.aliware.tianchi;
 
+import com.aliware.tianchi.status.ProviderStatus;
+import com.google.gson.Gson;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
@@ -25,7 +27,7 @@ public class TestServerFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(TestServerFilter.class);
     private static final int PROVIDER_THREADS= ConfigManager.getInstance().getProtocols().get("dubbo").getThreads();
     public static final String  ELAPSED= "elapsed";
-
+    Gson gson=new Gson();
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
@@ -62,13 +64,17 @@ public class TestServerFilter implements Filter {
             URL url = invoker.getUrl();
             String methodName = invocation.getMethodName();
             RpcStatus rpcStatus = RpcStatus.getStatus(url, methodName);
+            ProviderStatus providerStatus=new ProviderStatus();
             //总次数
-            long total=rpcStatus.getTotal();
+            providerStatus.setTotal(rpcStatus.getTotal());
             //总调用时长
-            long totalElapsed=rpcStatus.getTotalElapsed();
+            providerStatus.setTotalElapsed(rpcStatus.getTotalElapsed());
+            providerStatus.setActiveCount(rpcStatus.getActive());
+            providerStatus.setThreadCount(PROVIDER_THREADS);
+            providerStatus.setElapsed(Long.valueOf(invocation.getAttachment(ELAPSED)));
  /*           System.out.println("ELAPSED=="+invocation.getAttachment(ELAPSED));
             System.out.println("平均响应时间==="+totalElapsed/total);*/
-            result.setAttachment(PROVIDER_CORE_COUNT, rpcStatus.getActive()+"\t"+PROVIDER_THREADS+"\t"+invocation.getAttachment(ELAPSED));
+            result.setAttachment(PROVIDER_CORE_COUNT, gson.toJson(providerStatus));
         } catch (Exception e) {
             e.printStackTrace();
         }
