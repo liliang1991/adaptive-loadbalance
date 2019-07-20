@@ -66,11 +66,20 @@ public class UserLoadBalance implements LoadBalance {
                 //总调用时长
                 long totalElapsed=providerStatus.getTotalElapsed();
                 long avg=totalElapsed/total;
-                if(elapsed>avg){
-                    //logger.info("响应超过平均时间 "+elapsed+"\t"+avg);
+                int timeoutNum=0;
+                if(timeoutNum>0) {
+                    if (elapsed > avg) {
+                        //logger.info("响应超过平均时间 "+elapsed+"\t"+avg);
+                        timeoutNum = map.get(host).getTimeoutCount() + 1;
+                    } else {
+                        timeoutNum = map.get(host).getTimeoutCount() - 1;
+
+                    }
+                }
+                if(timeoutNum>=100){
                     surplusThread=SmoothWeight.minWeight();
                 }
-                SmoothServer smoothServer = new SmoothServer(surplusThread, 0,elapsed);
+                SmoothServer smoothServer = new SmoothServer(surplusThread, 0,elapsed,timeoutNum);
                 map.put(host, smoothServer);
             }
         }catch (Exception e){

@@ -14,7 +14,7 @@ public class SmoothServer {
     private long elapsed;
     private int surplusThread;
     private int threadWeight;
-
+    private int timeoutCount;
     public SmoothServer(){
 
     }
@@ -98,9 +98,23 @@ public class SmoothServer {
         this.curWeight = curWeight;
         this.elapsed = elapsed;
     }
+    public SmoothServer(int weight, int curWeight, long elapsed,int timeoutCount) {
+        this.weight = weight;
+        this.curWeight = curWeight;
+        this.elapsed = elapsed;
+        this.timeoutCount=timeoutCount;
+    }
 
     public int compareTo(SmoothServer other)
     {
         return this.getSurplusThread() - other.getSurplusThread();
+    }
+
+    public int getTimeoutCount() {
+        return timeoutCount;
+    }
+
+    public void setTimeoutCount(int timeoutCount) {
+        this.timeoutCount = timeoutCount;
     }
 }
