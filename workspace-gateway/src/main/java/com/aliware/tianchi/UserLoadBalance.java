@@ -59,23 +59,20 @@ public class UserLoadBalance implements LoadBalance {
                 long elapsed=providerStatus.getElapsed();
               // logger.info("elapsed===="+elapsed);
                 int surplusThread=thread-activeThread;
-
                 //总次数
                 long total=providerStatus.getTotal();
-
                 //总调用时长
                 long totalElapsed=providerStatus.getTotalElapsed();
                 long avg=totalElapsed/total;
-                int timeoutNum=0;
-                if(timeoutNum>0) {
+                int timeoutNum=map.get(host).getTimeoutCount();
+                if(timeoutNum>=0) {
                     if (elapsed > avg) {
-                        //logger.info("响应超过平均时间 "+elapsed+"\t"+avg);
-                        timeoutNum = map.get(host).getTimeoutCount() + 1;
+                        timeoutNum = timeoutNum + 1;
                     } else {
-                        timeoutNum = map.get(host).getTimeoutCount() - 1;
-
+                        timeoutNum = timeoutNum - 1;
                     }
                 }
+
                 if(timeoutNum>=100){
                     surplusThread=SmoothWeight.minWeight();
                 }
