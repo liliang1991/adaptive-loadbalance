@@ -77,7 +77,7 @@ public class UserLoadBalance implements LoadBalance {
                 if(timeoutNum>=100){
                     surplusThread=SmoothWeight.minWeight();
                 }*/
-                SmoothServer smoothServer = new SmoothServer(surplusThread, 0);
+                SmoothServer smoothServer = new SmoothServer(surplusThread, 0-SmoothWeight.sumWeight());
                 map.put(host, smoothServer);
             }
         }catch (Exception e){
@@ -101,17 +101,15 @@ public class UserLoadBalance implements LoadBalance {
                 SmoothServer smoothServer = new SmoothServer(host, 5, 0);
                 map.put(host, smoothServer);
             }*/
-      /*      if (i == 5) {
+            if (i == 5) {
+                System.out.println("i========");
+                SmoothServer smoothServer = new SmoothServer(17, 0-SmoothWeight.sumWeight());
+              /*  map.put("provider-small", smoothServer);
                 for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
                     System.out.println("key====" + entry.getKey());
-                }
-                SmoothServer smoothServer = new SmoothServer(0, 0);
+                }*/
                 map.put("provider-small", smoothServer);
-                for (Map.Entry<String, SmoothServer> entry : map.entrySet()) {
-                    System.out.println("key====" + entry.getKey());
-                }
-
-            }*/
+            }
 
             System.out.println(SmoothWeight.getServer(SmoothWeight.sumWeight()));
         }
