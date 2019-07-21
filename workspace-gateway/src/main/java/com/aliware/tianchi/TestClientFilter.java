@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Activate(group = Constants.CONSUMER)
 public class TestClientFilter implements Filter {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger Logger = LoggerFactory.getLogger(this.getClass());
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
@@ -36,9 +36,7 @@ public class TestClientFilter implements Filter {
                 return asyncRpcResult;
 
             } else {
-
                 return invoker.invoke(invocation);
-
             }
 
 
@@ -55,8 +53,7 @@ public class TestClientFilter implements Filter {
     public Result doPostProcess(Result result, Invoker<?> invoker) {
         try {
 
-            UserLoadBalance.addCallBack(result, invoker);
-
+            UserLoadBalance.callBack(result, invoker);
         }catch (Exception e){
           e.printStackTrace();
         }

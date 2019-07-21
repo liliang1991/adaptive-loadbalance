@@ -18,9 +18,9 @@ import java.util.*;
  * 选手需要基于此类实现自己的负载均衡算法
  */
 public class UserLoadBalance implements LoadBalance {
-    private static final Logger logger = LoggerFactory.getLogger(UserLoadBalance.class);
+    private static final Logger Logger = LoggerFactory.getLogger(UserLoadBalance.class);
     static Map<String, SmoothServer> map = SmoothWeight.servers;
-    public static final String PROVIDER_CORE_COUNT = "provider_thread";
+    public static final String PROVIDER_STATUS_PARAM = "provider_status_param";
      static   Gson gson=new Gson();
     @Override
     public <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) {
@@ -39,20 +39,12 @@ public class UserLoadBalance implements LoadBalance {
         return null;
     }
 
-    public static void addCallBack(Result result, Invoker<?> invoker) {
-        try {
-            callBack(result, invoker);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     public static void callBack(Result result, Invoker<?> invoker) {
         try {
-            String host = invoker.getUrl().getHost();
-            String params = result.getAttachment(PROVIDER_CORE_COUNT);
+            String params = result.getAttachment(PROVIDER_STATUS_PARAM);
             if (params != null) {
+                String host = invoker.getUrl().getHost();
                 ProviderStatus providerStatus=gson.fromJson(params, ProviderStatus.class);
                 int activeThread=providerStatus.getActiveCount();
                 int thread=providerStatus.getThreadCount();
@@ -63,7 +55,7 @@ public class UserLoadBalance implements LoadBalance {
                 //总调用时长
                 long totalElapsed=providerStatus.getTotalElapsed();
                 long avg=totalElapsed/total;
-                int surplusThread=(thread-activeThread)-(new Long(avg).intValue());
+                int weight=(thread-activeThread)-(new Long(avg).intValue());
 
         /*        int timeoutNum=map.get(host).getTimeoutCount();
                 if(timeoutNum>=0) {
@@ -77,11 +69,11 @@ public class UserLoadBalance implements LoadBalance {
                 if(timeoutNum>=100){
                     surplusThread=SmoothWeight.minWeight();
                 }*/
-                SmoothServer smoothServer = new SmoothServer(surplusThread, 0-SmoothWeight.sumWeight());
+                SmoothServer smoothServer = new SmoothServer(weight, 0);
                 map.put(host, smoothServer);
             }
         }catch (Exception e){
-            e.printStackTrace();
+            Logger.error("权重更新异常");
         }
     }
 

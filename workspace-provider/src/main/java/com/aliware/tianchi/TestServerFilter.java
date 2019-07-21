@@ -7,13 +7,9 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
-import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.rpc.*;
 
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * @author daofeng.xjf
@@ -24,7 +20,7 @@ import java.util.concurrent.BlockingQueue;
  */
 @Activate(group = Constants.PROVIDER)
 public class TestServerFilter implements Filter {
-    private static final Logger logger = LoggerFactory.getLogger(TestServerFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestServerFilter.class);
     private static final int PROVIDER_THREADS= ConfigManager.getInstance().getProtocols().get("dubbo").getThreads();
     public static final String  ELAPSED= "elapsed";
     Gson gson=new Gson();
@@ -56,7 +52,7 @@ public class TestServerFilter implements Filter {
             RpcStatus.endCount(url, methodName, elapsed, isException);
         }
     }
-    public static final String PROVIDER_CORE_COUNT = "provider_thread";
+    public static final String PROVIDER_STATUS_PARAM = "provider_status_param";
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         try {
@@ -74,7 +70,7 @@ public class TestServerFilter implements Filter {
           //  providerStatus.setElapsed(Long.valueOf(invocation.getAttachment(ELAPSED)));
  /*           System.out.println("ELAPSED=="+invocation.getAttachment(ELAPSED));
             System.out.println("平均响应时间==="+totalElapsed/total);*/
-            result.setAttachment(PROVIDER_CORE_COUNT, gson.toJson(providerStatus));
+            result.setAttachment(PROVIDER_STATUS_PARAM, gson.toJson(providerStatus));
         } catch (Exception e) {
             e.printStackTrace();
         }
