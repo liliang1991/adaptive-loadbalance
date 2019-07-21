@@ -16,24 +16,6 @@ public class SmoothWeight {
     }
 
     public  static int getServer(int weightCount) {
-/*
-        int num = 0;
-        SmoothServer tmpSv = null;
-        for (int i = 0; i < servers.size(); i++) {
-            SmoothServer sv = servers.get(i);
-            sv.setCurWeight(sv.getWeight() + sv.getCurWeight());
-            if (tmpSv == null || tmpSv.getCurWeight() < sv.getCurWeight()) {
-                tmpSv = sv;
-                num = i;
-            }
-            ;
-        }
-
-        tmpSv.setCurWeight(tmpSv.getCurWeight() - weightCount);
-        return num;
-*/
-
-
         int num = 0;
         int i = 0;
         SmoothServer tmpSv = null;
@@ -46,13 +28,8 @@ public class SmoothWeight {
                 num = i;
             }
             i++;
-
         }
         int curWeight = tmpSv.getCurWeight() - weightCount;
-
-     /*   if (curWeight < 0) {
-            curWeight = 0;
-        }*/
         tmpSv.setCurWeight(curWeight);
         return num;
 
